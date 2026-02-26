@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REST API Тестирование - Университет</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .api-test-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .endpoint-card {
+            background: white;
+            border: 2px solid #38bdf8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.1);
+        }
+
+        .endpoint-card.get {
+            border-left: 5px solid #10b981;
+        }
+
+        .endpoint-card.post {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 12px;
+        }
+
+        .method-badge.get {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .method-badge.post {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .endpoint-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 10px 0;
+        }
+
+        .endpoint-url {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #1f2937;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        .endpoint-description {
+            color: #4b5563;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .example-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+
+        .test-button {
+            background: #38bdf8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .test-button:hover {
+            background: #0ea5e9;
+            transform: translateY(-2px);
+        }
+
+        .response-box {
+            background: #e0f2fe;
+            border: 2px solid #38bdf8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .response-box.active {
+            display: block;
+        }
+
+        .response-title {
+            font-weight: bold;
+            color: #0c4a6e;
+            margin-bottom: 10px;
+        }
+
+        .response-content {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1a3a52 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0 15px 0;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .json-response {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #38bdf8;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container nav-container">
+        <div class="logo">
+            <h1>🎓 Университет</h1>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/">Главная</a></li>
+            <li><a href="/api-docs">API Тесты</a></li>
+            <li><a href="/dashboard">Панель</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="api-test-container">
+    <div class="section-header">
+        <h2>📚 REST API Архитектура</h2>
+        <p>Демонстрация концепций HTTP протокола и JSON сериализации</p>
+    </div>
+
+    <!-- Раздел GET запросов -->
+    <div class="section-header">
+        <h3>1️⃣ GET Запросы - Получение данных</h3>
+    </div>
+
+    <div class="endpoint-card get">
+        <span class="method-badge get">GET</span>
+        <div class="endpoint-title">/api/main</div>
+        <div class="endpoint-url">http://localhost:8080/api/main</div>
+        <div class="endpoint-description">
+            <strong>Назначение:</strong> Получить простое приветствие от сервера<br>
+            <strong>Использование:</strong> Базовая проверка доступности API
+        </div>
+        <div class="example-box">
+            <div class="example-title">📋 Пример в Postman:</div>
+            <div class="code-block">
+GET http://localhost:8080/api/main
+            </div>
+            <button class="test-button" onclick="testGetHello()">Тестировать</button>
+            <div id="response-hello" class="response-box">
+                <div class="response-title">Ответ:</div>
+                <div class="response-content" id="hello-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="endpoint-card get">
+        <span class="method-badge get">GET</span>
+        <div class="endpoint-title">/api/main/special</div>
+        <div class="endpoint-url">http://localhost:8080/api/main/special</div>
+        <div class="endpoint-description">
+            <strong>Назначение:</strong> Получить JSON объект студента<br>
+            <strong>Возвращает:</strong> Объект Student в формате JSON<br>
+            <strong>Демонстрирует:</strong> Сериализацию Java объекта в JSON
+        </div>
+        <div class="example-box">
+            <div class="example-title">📋 Пример в Postman:</div>
+            <div class="code-block">
+GET http://localhost:8080/api/main/special
+            </div>
+            <div class="example-title">📊 Ожидаемый ответ (JSON):</div>
+            <div class="json-response">
+{<br>
+&nbsp;&nbsp;"id": 1,<br>
+&nbsp;&nbsp;"fullname": "Камила Танырбергенова",<br>
+&nbsp;&nbsp;"age": 30<br>
+}
+            </div>
+            <button class="test-button" onclick="testGetSpecial()">Тестировать</button>
+            <div id="response-special" class="response-box">
+                <div class="response-title">Ответ:</div>
+                <div class="response-content" id="special-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Раздел POST запросов -->
+    <div class="section-header">
+        <h3>2️⃣ POST Запросы - Отправка данных</h3>
+    </div>
+
+    <div class="endpoint-card post">
+        <span class="method-badge post">POST</span>
+        <div class="endpoint-title">/api/main/special (с параметром)</div>
+        <div class="endpoint-url">http://localhost:8080/api/main/special?name=ВАШЕ_ИМЯ</div>
+        <div class="endpoint-description">
+            <strong>Назначение:</strong> Создать объект студента с заданным именем<br>
+            <strong>Параметры:</strong> name (строка) - имя студента<br>
+            <strong>Демонстрирует:</strong> Обработку запроса с параметрами (@RequestParam)
+        </div>
+        <div class="example-box">
+            <div class="example-title">📋 Пример в Postman:</div>
+            <div class="code-block">
+POST http://localhost:8080/api/main/special?name=Асхан+Сатпаев
+            </div>
+            <div class="example-title">📊 Ожидаемый ответ:</div>
+            <div class="json-response">
+{<br>
+&nbsp;&nbsp;"id": 1,<br>
+&nbsp;&nbsp;"fullname": "Асхан Сатпаев",<br>
+&nbsp;&nbsp;"age": 25<br>
+}
+            </div>
+            <div style="margin: 10px 0;">
+                <input type="text" id="studentName" placeholder="Введите имя студента" style="padding: 8px; width: 100%; max-width: 300px;">
+            </div>
+            <button class="test-button" onclick="testPostSpecial()">Тестировать</button>
+            <div id="response-post" class="response-box">
+                <div class="response-title">Ответ:</div>
+                <div class="response-content" id="post-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="endpoint-card post">
+        <span class="method-badge post">POST</span>
+        <div class="endpoint-title">/api/main/serialize (сериализация)</div>
+        <div class="endpoint-url">http://localhost:8080/api/main/serialize?name=ИМЯ&age=ВОЗРАСТ</div>
+        <div class="endpoint-description">
+            <strong>Назначение:</strong> Продемонстрировать ручную JSON сериализацию<br>
+            <strong>Параметры:</strong> name (строка), age (число)<br>
+            <strong>Демонстрирует:</strong> Использование ObjectMapper для контролируемой сериализации<br>
+            <strong>Важность:</strong> В сложных системах сериализацию необходимо контролировать вручную
+        </div>
+        <div class="example-box">
+            <div class="example-title">📋 Пример в Postman:</div>
+            <div class="code-block">
+POST http://localhost:8080/api/main/serialize?name=Мария+Иванова&age=28
+            </div>
+            <div style="margin: 10px 0;">
+                <input type="text" id="serializeName" placeholder="Имя" style="padding: 8px; width: 48%; margin-right: 2%;">
+                <input type="number" id="serializeAge" placeholder="Возраст" style="padding: 8px; width: 48%;">
+            </div>
+            <button class="test-button" onclick="testSerialize()">Тестировать</button>
+            <div id="response-serialize" class="response-box">
+                <div class="response-title">Ответ:</div>
+                <div class="response-content" id="serialize-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Раздел информации -->
+    <div class="section-header">
+        <h3>ℹ️ Информация об API</h3>
+    </div>
+
+    <div class="endpoint-card">
+        <div class="endpoint-title">GET /api/main/info</div>
+        <div class="endpoint-description">
+            Получить полную информацию о доступных эндпоинтах API
+        </div>
+        <button class="test-button" onclick="testInfo()">Получить информацию</button>
+        <div id="response-info" class="response-box">
+            <div class="response-title">Информация об API:</div>
+            <div class="response-content" id="info-content"></div>
+        </div>
+    </div>
+
+    <!-- Раздел тестирования REST API -->
+    <div class="card">
+        <h2>🧪 Что такое REST API?</h2>
+        <p>
+            REST (Representational State Transfer) — архитектурный стиль для разработки веб-сервисов.
+            Основан на использовании стандартных HTTP методов для взаимодействия между клиентом и сервером.
+        </p>
+        <h3>Ключевые концепции:</h3>
+        <ul>
+            <li><strong>GET</strong> - получение ресурсов (идемпотентная операция)</li>
+            <li><strong>POST</strong> - создание новых ресурсов (обработка данных)</li>
+            <li><strong>PUT</strong> - обновление существующих ресурсов</li>
+            <li><strong>DELETE</strong> - удаление ресурсов</li>
+        </ul>
+        <h3>JSON как универсальный формат:</h3>
+        <p>JSON (JavaScript Object Notation) — легковесный формат для обмена данными, независимый от языка программирования.</p>
+    </div>
+
+    <!-- Раздел Postman -->
+    <div class="card">
+        <h2>📮 Как использовать Postman</h2>
+        <ol>
+            <li>Загрузите Postman с официального сайта: <a href="https://www.postman.com/" target="_blank">postman.com</a></li>
+            <li>Создайте новый запрос (New Request)</li>
+            <li>Выберите метод (GET, POST, PUT, DELETE)</li>
+            <li>Введите URL эндпоинта</li>
+            <li>Для POST запросов добавьте параметры в разделе Params</li>
+            <li>Нажмите Send и смотрите ответ в разделе Response</li>
+        </ol>
+        <p><strong>Совет:</strong> Используйте окладку "Tests" для автоматизации проверки ответов.</p>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 Система управления университетом. REST API демонстрация.</p>
+</footer>
+
+<script>
+    async function testGetHello() {
+        try {
+            const response = await fetch('/api/main');
+            const data = await response.text();
+            document.getElementById('hello-content').textContent = data;
+            document.getElementById('response-hello').classList.add('active');
+        } catch (error) {
+            document.getElementById('hello-content').textContent = 'Ошибка: ' + error.message;
+            document.getElementById('response-hello').classList.add('active');
+        }
+    }
+
+    async function testGetSpecial() {
+        try {
+            const response = await fetch('/api/main/special');
+            const data = await response.json();
+            document.getElementById('special-content').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('response-special').classList.add('active');
+        } catch (error) {
+            document.getElementById('special-content').textContent = 'Ошибка: ' + error.message;
+            document.getElementById('response-special').classList.add('active');
+        }
+    }
+
+    async function testPostSpecial() {
+        const name = document.getElementById('studentName').value || 'Студент';
+        try {
+            const response = await fetch(`/api/main/special?name=${encodeURIComponent(name)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            document.getElementById('post-content').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('response-post').classList.add('active');
+        } catch (error) {
+            document.getElementById('post-content').textContent = 'Ошибка: ' + error.message;
+            document.getElementById('response-post').classList.add('active');
+        }
+    }
+
+    async function testSerialize() {
+        const name = document.getElementById('serializeName').value || 'Иван';
+        const age = document.getElementById('serializeAge').value || 20;
+        try {
+            const response = await fetch(`/api/main/serialize?name=${encodeURIComponent(name)}&age=${age}`, {
+                method: 'POST'
+            });
+            const data = await response.text();
+            document.getElementById('serialize-content').textContent = data;
+            document.getElementById('response-serialize').classList.add('active');
+        } catch (error) {
+            document.getElementById('serialize-content').textContent = 'Ошибка: ' + error.message;
+            document.getElementById('response-serialize').classList.add('active');
+        }
+    }
+
+    async function testInfo() {
+        try {
+            const response = await fetch('/api/main/info');
+            const data = await response.text();
+            document.getElementById('info-content').textContent = data;
+            document.getElementById('response-info').classList.add('active');
+        } catch (error) {
+            document.getElementById('info-content').textContent = 'Ошибка: ' + error.message;
+            document.getElementById('response-info').classList.add('active');
+        }
+    }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить курс - Админ-панель</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .alert-error {
+            padding: 15px;
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/admin/dashboard" class="btn-back">← Назад к панели</a>
+
+        <div class="form-container">
+            <h1>➕ Добавить новый курс</h1>
+
+            <div th:if="${error}" class="alert-error">
+                <span th:text="${error}"></span>
+            </div>
+
+            <form method="post" action="/admin/courses">
+                <div class="form-group">
+                    <label for="title">Название курса *</label>
+                    <input type="text"
+                           id="title"
+                           name="title"
+                           required
+                           placeholder="Например: Искусственный интеллект">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание курса *</label>
+                    <textarea id="description"
+                              name="description"
+                              required
+                              placeholder="Подробное описание курса, темы, которые будут изучаться..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Отделение *</label>
+                    <input type="text"
+                           id="department"
+                           name="department"
+                           required
+                           placeholder="Например: Информатика">
+                </div>
+
+                <div class="form-group">
+                    <label for="semester">Семестр *</label>
+                    <input type="text"
+                           id="semester"
+                           name="semester"
+                           required
+                           placeholder="Например: Осень 2024">
+                </div>
+
+                <div class="form-group">
+                    <label for="professorId">Преподаватель *</label>
+                    <select id="professorId" name="professorId" required>
+                        <option value="">-- Выберите преподавателя --</option>
+                        <option th:each="prof : ${professors}"
+                                th:value="${prof.id}"
+                                th:text="${prof.name + ' (' + prof.department + ')'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="universityId">Университет *</label>
+                    <select id="universityId" name="universityId" required>
+                        <option value="">-- Выберите университет --</option>
+                        <option th:each="uni : ${universities}"
+                                th:value="${uni.id}"
+                                th:text="${uni.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Создать курс</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

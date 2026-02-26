@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - University Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .auth-container {
+            max-width: 450px;
+            margin: 80px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>🎓 Вход в систему</h1>
+            <p>University Management System</p>
+        </div>
+
+        <!-- Error message -->
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form method="post" action="/auth/login">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       required
+                       placeholder="Введите ваш email"
+                       th:value="${email}">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       required
+                       placeholder="Введите пароль">
+            </div>
+
+            <button type="submit" class="btn-submit">Войти</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Нет аккаунта? <a href="/auth/register">Зарегистрироваться</a></p>
+            <p><a href="/">← Вернуться на главную</a></p>
+        </div>
+    </div>
+</body>
+</html>
+

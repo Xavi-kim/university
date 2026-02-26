@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель студента - University Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .header h1 { color: #667eea; }
+        .user-info { display: flex; gap: 15px; align-items: center; }
+        .btn-logout {
+            padding: 10px 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .course-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+        .course-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .course-detail {
+            margin: 8px 0;
+            color: #555;
+        }
+        .btn-enroll, .btn-unenroll {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .btn-enroll {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-unenroll {
+            background: #ff9800;
+            color: white;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f44336;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            background: #667eea;
+            color: white;
+        }
+        .badge-enrolled {
+            background: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Панель студента</h1>
+            <div class="user-info">
+                <span>Привет, <strong th:text="${userName}">Student</strong>!</span>
+                <a href="/auth/logout" class="btn-logout">Выход</a>
+            </div>
+        </div>
+
+        <!-- Success/Error messages -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <span th:if="${param.success[0] == 'enrolled'}">✅ Вы успешно записались на курс!</span>
+            <span th:if="${param.success[0] == 'unenrolled'}">✅ Вы отписались от курса</span>
+        </div>
+        <div th:if="${param.error}" class="alert alert-error">
+            <span>❌ Ошибка: <span th:text="${param.error[0]}"></span></span>
+        </div>
+
+        <!-- My Enrolled Courses -->
+        <div class="content-section">
+            <h2>📖 Мои курсы (<span th:text="${#lists.size(enrollments)}">0</span>)</h2>
+
+            <div th:if="${#lists.isEmpty(enrollments)}" style="text-align: center; padding: 40px; color: #666;">
+                <p>Вы еще не записаны ни на один курс</p>
+                <p>Выберите курсы ниже для записи</p>
+            </div>
+
+            <div class="course-grid" th:if="${!#lists.isEmpty(enrollments)}">
+                <div class="course-card" th:each="enrollment : ${enrollments}">
+                    <h3>
+                        📚 <span th:text="${enrollment.course.title}">Course Title</span>
+                        <span class="badge badge-enrolled" th:text="${enrollment.status}">ACTIVE</span>
+                    </h3>
+                    <div class="course-detail">
+                        <strong>Преподаватель:</strong>
+                        <span th:text="${enrollment.course.professor != null ? enrollment.course.professor.name : 'N/A'}"></span>
+                    </div>
+                    <div class="course-detail">
+                        <strong>Отделение:</strong>
+                        <span th:text="${enrollment.course.department}"></span>
+                    </div>
+                    <div class="course-detail">
+                        <strong>Университет:</strong>
+                        <span th:text="${enrollment.course.university != null ? enrollment.course.university.name : 'N/A'}"></span>
+                    </div>
+                    <div class="course-detail">
+                        <strong>Семестр:</strong>
+                        <span th:text="${enrollment.course.semester}"></span>
+                    </div>
+                    <div class="course-detail" th:if="${enrollment.grade != null}">
+                        <strong>Оценка:</strong>
+                        <span th:text="${enrollment.grade}"></span>
+                    </div>
+                    <div class="course-detail" style="font-style: italic; margin-top: 10px;">
+                        <span th:text="${enrollment.course.description}"></span>
+                    </div>
+                    <form th:action="@{/student/unenroll/{id}(id=${enrollment.id})}" method="post">
+                        <button type="submit" class="btn-unenroll" onclick="return confirm('Отписаться от курса?')">
+                            Отписаться
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Courses -->
+        <div class="content-section">
+            <h2>🔍 Доступные курсы для записи</h2>
+
+            <div class="course-grid">
+                <div class="course-card" th:each="course : ${availableCourses}">
+                    <h3>📚 <span th:text="${course.title}">Course Title</span></h3>
+                    <div class="course-detail">
+                        <strong>Преподаватель:</strong>
+                        <span th:text="${course.professor != null ? course.professor.name : 'N/A'}"></span>
+                    </div>
+                    <div class="course-detail">
+                        <strong>Отделение:</strong>
+                        <span th:text="${course.department}"></span>
+                    </div>
+                    <div class="course-detail">
+                        <strong>Университет:</strong>
+                        <span th:text="${course.university != null ? course.university.name : 'N/A'}"></span>
+                    </div>
+                    <div class="course-detail">
+                        <strong>Семестр:</strong>
+                        <span th:text="${course.semester}"></span>
+                    </div>
+                    <div class="course-detail" style="font-style: italic; margin-top: 10px;">
+                        <span th:text="${course.description}"></span>
+                    </div>
+                    <form th:action="@{/student/enroll/{id}(id=${course.id})}" method="post">
+                        <button type="submit" class="btn-enroll">Записаться на курс</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления - Университет</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container nav-container">
+        <div class="logo">
+            <h1>🎓 Университет</h1>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/">Главная</a></li>
+            <li><a href="/dashboard">Панель управления</a></li>
+            <li><a href="/about">О системе</a></li>
+            <li><a href="/logout">Выход</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="hero">
+        <h1>📊 Панель управления</h1>
+        <p>Управляйте курсами, преподавателями и студентами в одном месте</p>
+    </section>
+
+    <section class="grid">
+        <div class="card highlight">
+            <h3>📚 Управление курсами</h3>
+            <p>Добавляйте, редактируйте и удаляйте курсы</p>
+            <a href="/api/courses" class="btn">Перейти к курсам</a>
+        </div>
+        <div class="card highlight">
+            <h3>👥 Управление пользователями</h3>
+            <p>Управляйте преподавателями и студентами</p>
+            <a href="/api/users" class="btn">Перейти к пользователям</a>
+        </div>
+        <div class="card highlight">
+            <h3>📋 Статистика</h3>
+            <p>Просмотрите статистику по курсам и преподавателям</p>
+            <a href="/stats" class="btn">Просмотреть статистику</a>
+        </div>
+    </section>
+
+    <section class="card form">
+        <h2>Создать новый курс</h2>
+        <form id="courseForm">
+            <label>Университет
+                <input type="text" name="university" placeholder="Введите название университета" required>
+            </label>
+            <label>Отделение
+                <input type="text" name="department" placeholder="Введите название отделения" required>
+            </label>
+            <label>Название курса
+                <input type="text" name="title" placeholder="Введите название курса" required>
+            </label>
+            <label>Описание
+                <textarea name="description" placeholder="Введите описание курса" required rows="3"></textarea>
+            </label>
+            <label>Преподаватель
+                <input type="text" name="professor" placeholder="Введите имя преподавателя" required>
+            </label>
+            <label>Семестр
+                <input type="text" name="semester" placeholder="Пример: Осень 2026" required>
+            </label>
+            <button type="submit">Создать курс</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Последние курсы</h2>
+        <div id="coursesList">
+            <p>Загрузка курсов...</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Система управления университетом. Все права защищены.</p>
+    </footer>
+</div>
+
+<script>
+    // Загружаем курсы при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCourses();
+        document.getElementById('courseForm').addEventListener('submit', handleCourseSubmit);
+    });
+
+    function loadCourses() {
+        fetch('/api/courses')
+            .then(response => response.json())
+            .then(data => {
+                const coursesList = document.getElementById('coursesList');
+                if (data.length === 0) {
+                    coursesList.innerHTML = '<p>Курсы не найдены</p>';
+                    return;
+                }
+                let html = '<table class="data"><thead><tr><th>Название</th><th>Отделение</th><th>Преподаватель</th><th>Семестр</th><th>Действия</th></tr></thead><tbody>';
+                data.forEach(course => {
+                    html += `<tr>
+                        <td>${course.title}</td>
+                        <td>${course.department}</td>
+                        <td>${course.professor}</td>
+                        <td>${course.semester}</td>
+                        <td>
+                            <button onclick="deleteCourse(${course.id})">Удалить</button>
+                        </td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                coursesList.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке курсов:', error);
+                document.getElementById('coursesList').innerHTML = '<p>Ошибка при загрузке курсов</p>';
+            });
+    }
+
+    function handleCourseSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const course = Object.fromEntries(formData);
+
+        fetch('/api/courses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(course)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Курс успешно создан!');
+            e.target.reset();
+            loadCourses();
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка при создании курса');
+        });
+    }
+
+    function deleteCourse(id) {
+        if (confirm('Вы уверены, что хотите удалить этот курс?')) {
+            fetch(`/api/courses/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Курс успешно удален!');
+                    loadCourses();
+                }
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+    }
+</script>
+</body>
+</html>
+
