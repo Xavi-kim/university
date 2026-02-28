@@ -1,59 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление университетом</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <meta http-equiv="refresh" content="0; url=/home">
+    <title>Перенаправление...</title>
 </head>
 <body>
-<div class="container">
-    <section class="hero">
-        <span class="badge">Университет</span>
-        <h1>Портал управления курсами университета</h1>
-        <p>Планируйте курсы, согласовывайте отделения и управляйте назначениями профессоров с полной ясностью.</p>
-    </section>
-
-    <section class="grid">
-        <div class="card">
-            <h3>Структура программы</h3>
-            <p>Определите отделения, назначьте курсы и установите расписание семестров для согласованности программ.</p>
-        </div>
-        <div class="card">
-            <h3>Фокус на профессорах</h3>
-            <p>Отслеживайте опыт преподавателей, ответственность за курсы и нагрузку на семестр.</p>
-        </div>
-        <div class="card">
-            <h3>Планирование курсов</h3>
-            <p>Собирайте запросы на курсы и убедитесь, что каждый класс имеет квалифицированного преподавателя.</p>
-        </div>
-    </section>
-
-    <section class="card form">
-        <h2>Отправить информацию о курсе</h2>
-        <p class="muted">Отправляйте данные через POST на эндпоинт сервлета <code>/data</code>.</p>
-        <p class="muted"><a href="auth/register">Создать аккаунт</a> или <a href="auth/login">войти</a> для продолжения.</p>
-        <form method="post" action="data">
-            <label>Университет
-                <input type="text" name="university" placeholder="Введите университет" required>
-            </label>
-            <label>Отделение
-                <input type="text" name="department" placeholder="Введите отделение" required>
-            </label>
-            <label>Курс
-                <input type="text" name="course" placeholder="Введите курс" required>
-            </label>
-            <label>Профессор
-                <input type="text" name="professor" placeholder="Введите профессора" required>
-            </label>
-            <label>Семестр
-                <input type="text" name="semester" placeholder="Осень 2026" required>
-            </label>
-            <button type="submit">Отправить</button>
-        </form>
-    </section>
-
-    <footer>Управление университетом - Справочник профессоров и курсов</footer>
-</div>
+<script>window.location.replace('/home');</script>
 </body>
 </html>

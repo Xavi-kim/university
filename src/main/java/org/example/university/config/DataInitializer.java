@@ -5,6 +5,7 @@ import org.example.university.model.Professor;
 import org.example.university.model.University;
 import org.example.university.model.User;
 import org.example.university.repository.CourseRepository;
+import org.example.university.repository.EnrollmentRepository;
 import org.example.university.repository.ProfessorRepository;
 import org.example.university.repository.UniversityRepository;
 import org.example.university.repository.UserRepository;
@@ -32,11 +33,25 @@ public class DataInitializer implements CommandLineRunner {
     private UserRepository userRepository;
 
     @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
-        // Очистка базы данных при каждом запуске (для тестирования)
+        // Если данные уже есть — не трогаем (PostgreSQL сохраняет данные между запусками)
+        if (userRepository.count() > 0) {
+            System.out.println("✅ База данных уже содержит данные, инициализация пропущена.");
+            System.out.println("   👤 Пользователей: " + userRepository.count());
+            System.out.println("   📚 Университетов: " + universityRepository.count());
+            System.out.println("   👨‍🏫 Преподавателей: " + professorRepository.count());
+            System.out.println("   📖 Курсов: " + courseRepository.count());
+            return;
+        }
+
+        // Очистка в правильном порядке (сначала зависимые таблицы)
+        enrollmentRepository.deleteAll();
         courseRepository.deleteAll();
         professorRepository.deleteAll();
         universityRepository.deleteAll();

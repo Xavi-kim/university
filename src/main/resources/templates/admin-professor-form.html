@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${professor != null ? 'Редактировать преподавателя' : 'Добавить преподавателя'}">Преподаватель</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: white; border-radius: 16px; padding: 40px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .card-title { font-size: 1.6em; font-weight: 700; color: #333; margin-bottom: 8px; }
+        .card-subtitle { color: #888; margin-bottom: 30px; font-size: 0.95em; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; color: #444; margin-bottom: 6px; font-size: 0.9em; }
+        input, select, textarea {
+            width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 8px;
+            font-size: 1em; font-family: inherit; transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        textarea { height: 100px; resize: vertical; }
+        .btn-submit {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; border-radius: 8px; font-size: 1.05em;
+            font-weight: 600; cursor: pointer; transition: transform 0.2s;
+        }
+        .btn-submit:hover { transform: translateY(-2px); }
+        .btn-back { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; font-size: 0.9em; }
+        .btn-back:hover { text-decoration: underline; }
+        .alert-error { padding: 12px 16px; background: #fdecea; color: #c62828; border-radius: 8px; border-left: 4px solid #f44336; margin-bottom: 20px; }
+        .required { color: #f44336; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <a href="/admin/dashboard" class="btn-back">← Назад к панели</a>
+
+    <div class="card-title" th:text="${professor != null ? '✏️ Редактировать преподавателя' : '👨‍🏫 Добавить преподавателя'}"></div>
+    <div class="card-subtitle">Заполните информацию о преподавателе</div>
+
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <!-- Форма создания -->
+    <form th:if="${professor == null}" action="/admin/professors" method="post">
+        <div class="form-group">
+            <label>Полное имя <span class="required">*</span></label>
+            <input type="text" name="name" placeholder="Иванов Иван Иванович" required />
+        </div>
+        <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" name="email" placeholder="professor@university.kz" required />
+        </div>
+        <div class="form-group">
+            <label>Кафедра <span class="required">*</span></label>
+            <input type="text" name="department" placeholder="Математика, Информатика..." required />
+        </div>
+        <div class="form-group">
+            <label>Университет</label>
+            <select name="universityId">
+                <option value="">— Выбрать университет —</option>
+                <option th:each="u : ${universities}" th:value="${u.id}" th:text="${u.name}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Биография / О преподавателе</label>
+            <textarea name="bio" placeholder="Краткая биография, научные интересы, достижения..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">✅ Добавить преподавателя</button>
+    </form>
+
+    <!-- Форма редактирования -->
+    <form th:if="${professor != null}" th:action="@{/admin/professors/{id}(id=${professor.id})}" method="post">
+        <div class="form-group">
+            <label>Полное имя <span class="required">*</span></label>
+            <input type="text" name="name" th:value="${professor.name}" required />
+        </div>
+        <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" name="email" th:value="${professor.email}" required />
+        </div>
+        <div class="form-group">
+            <label>Кафедра <span class="required">*</span></label>
+            <input type="text" name="department" th:value="${professor.department}" required />
+        </div>
+        <div class="form-group">
+            <label>Университет</label>
+            <select name="universityId">
+                <option value="">— Выбрать университет —</option>
+                <option th:each="u : ${universities}"
+                        th:value="${u.id}"
+                        th:text="${u.name}"
+                        th:selected="${professor.university != null && professor.university.id == u.id}">
+                </option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Биография</label>
+            <textarea name="bio" th:text="${professor.bio}"></textarea>
+        </div>
+        <button type="submit" class="btn-submit">💾 Сохранить изменения</button>
+    </form>
+</div>
+</body>
+</html>
+

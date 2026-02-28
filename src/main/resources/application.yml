@@ -1,22 +1,22 @@
 spring:
   application:
     name: University Management System
+
   datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+    url: jdbc:postgresql://localhost:5432/university_db
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: 123261181
+
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        default_schema: public
+
   jackson:
     serialization:
       indent-output: true
@@ -25,11 +25,9 @@ spring:
 
 server:
   port: 8080
-  # context-path убран для доступа напрямую по http://localhost:8080/
 
 logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
-

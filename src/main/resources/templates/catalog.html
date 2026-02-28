@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог — Университет</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6fb; min-height: 100vh; }
+
+        /* Navbar */
+        nav { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 0 40px; position: sticky; top: 0; z-index: 100; }
+        .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .logo { font-size: 1.3em; font-weight: 700; color: #667eea; text-decoration: none; }
+        .nav-links { display: flex; gap: 28px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #555; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #667eea; }
+        .nav-auth { display: flex; gap: 12px; }
+        .btn-login { padding: 8px 20px; border: 2px solid #667eea; color: #667eea; border-radius: 8px; text-decoration: none; font-weight: 600; }
+        .btn-register { padding: 8px 20px; background: #667eea; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; }
+
+        /* Hero */
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 40px; text-align: center; }
+        .hero h1 { font-size: 2.2em; margin-bottom: 12px; }
+        .hero p { font-size: 1.1em; opacity: 0.9; }
+        .stats-bar { display: flex; justify-content: center; gap: 48px; margin-top: 32px; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 2em; font-weight: 700; }
+        .stat-lbl { font-size: 0.85em; opacity: 0.85; margin-top: 2px; }
+
+        /* Tabs */
+        .tabs { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid #e0e6ff; margin: 32px 0 0; }
+        .tab-btn { padding: 12px 28px; background: none; border: none; cursor: pointer; font-size: 1em; color: #888; font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-btn:hover { color: #667eea; }
+
+        /* Tab content */
+        .tab-content { display: none; padding: 24px 0 48px; }
+        .tab-content.active { display: block; }
+
+        /* Search */
+        .search-box { margin-bottom: 24px; }
+        .search-box input { width: 100%; max-width: 440px; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; outline: none; transition: border-color 0.2s; }
+        .search-box input:focus { border-color: #667eea; }
+
+        /* Grid cards */
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(102,126,234,0.15); }
+        .card-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.78em; font-weight: 600; margin-bottom: 12px; }
+        .tag-course { background: #e8f4fd; color: #1565c0; }
+        .tag-professor { background: #e8f5e9; color: #2e7d32; }
+        .tag-university { background: #fff3e0; color: #e65100; }
+        .card h3 { font-size: 1.1em; color: #222; margin-bottom: 8px; }
+        .card p { color: #666; font-size: 0.9em; line-height: 1.5; }
+        .card-meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .meta-item { background: #f5f5f5; padding: 4px 10px; border-radius: 6px; font-size: 0.8em; color: #555; }
+        .empty-state { text-align: center; padding: 80px 20px; color: #aaa; }
+        .empty-state .icon { font-size: 3em; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <div class="nav-inner">
+        <a href="/" class="logo">🎓 Университет</a>
+        <ul class="nav-links">
+            <li><a href="/">Главная</a></li>
+            <li><a href="/catalog" class="active">📚 Каталог</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="/auth/login" class="btn-login">Вход</a>
+            <a href="/auth/register" class="btn-register">Регистрация</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+    <h1>📚 Каталог</h1>
+    <p>Все курсы, преподаватели и университеты системы</p>
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-num" th:text="${#lists.size(courses)}">0</div>
+            <div class="stat-lbl">Курсов</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num" th:text="${#lists.size(professors)}">0</div>
+            <div class="stat-lbl">Преподавателей</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num" th:text="${#lists.size(universities)}">0</div>
+            <div class="stat-lbl">Университетов</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="showTab('courses', this)">📚 Курсы</button>
+        <button class="tab-btn" onclick="showTab('professors', this)">👨‍🏫 Преподаватели</button>
+        <button class="tab-btn" onclick="showTab('universities', this)">🏛 Университеты</button>
+    </div>
+
+    <!-- КУРСЫ -->
+    <div id="tab-courses" class="tab-content active">
+        <div class="search-box">
+            <input type="text" id="search-courses" oninput="filterCards('courses')" placeholder="🔍 Поиск по курсам..." />
+        </div>
+        <div class="cards-grid" id="grid-courses">
+            <div th:if="${#lists.isEmpty(courses)}" class="empty-state" style="grid-column:1/-1">
+                <div class="icon">📭</div><div>Курсов пока нет</div>
+            </div>
+            <div th:each="c : ${courses}" class="card" th:attr="data-name=${c.title}, data-dept=${c.department}">
+                <span class="card-tag tag-course" th:text="${c.department}">Кафедра</span>
+                <h3 th:text="${c.title}">Название курса</h3>
+                <p th:text="${c.description != null ? (c.description.length() > 100 ? c.description.substring(0,100) + '...' : c.description) : ''}"></p>
+                <div class="card-meta">
+                    <span class="meta-item" th:if="${c.semester != null}">📅 <span th:text="${c.semester}"></span></span>
+                    <span class="meta-item" th:if="${c.professor != null}">👨‍🏫 <span th:text="${c.professor.name}"></span></span>
+                    <span class="meta-item" th:if="${c.university != null}">🏛 <span th:text="${c.university.name}"></span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРЕПОДАВАТЕЛИ -->
+    <div id="tab-professors" class="tab-content">
+        <div class="search-box">
+            <input type="text" id="search-professors" oninput="filterCards('professors')" placeholder="🔍 Поиск по преподавателям..." />
+        </div>
+        <div class="cards-grid" id="grid-professors">
+            <div th:if="${#lists.isEmpty(professors)}" class="empty-state" style="grid-column:1/-1">
+                <div class="icon">📭</div><div>Преподавателей пока нет</div>
+            </div>
+            <div th:each="p : ${professors}" class="card" th:attr="data-name=${p.name}, data-dept=${p.department}">
+                <span class="card-tag tag-professor" th:text="${p.department}">Кафедра</span>
+                <h3 th:text="${p.name}">Имя</h3>
+                <p th:text="${p.bio != null ? (p.bio.length() > 100 ? p.bio.substring(0,100) + '...' : p.bio) : ''}"></p>
+                <div class="card-meta">
+                    <span class="meta-item" th:if="${p.email != null}">✉️ <span th:text="${p.email}"></span></span>
+                    <span class="meta-item" th:if="${p.university != null}">🏛 <span th:text="${p.university.name}"></span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- УНИВЕРСИТЕТЫ -->
+    <div id="tab-universities" class="tab-content">
+        <div class="search-box">
+            <input type="text" id="search-universities" oninput="filterCards('universities')" placeholder="🔍 Поиск по университетам..." />
+        </div>
+        <div class="cards-grid" id="grid-universities">
+            <div th:if="${#lists.isEmpty(universities)}" class="empty-state" style="grid-column:1/-1">
+                <div class="icon">📭</div><div>Университетов пока нет</div>
+            </div>
+            <div th:each="u : ${universities}" class="card" th:attr="data-name=${u.name}, data-dept=${u.city}">
+                <span class="card-tag tag-university" th:text="${u.city != null ? u.city : '—'}">Город</span>
+                <h3 th:text="${u.name}">Название</h3>
+                <p th:text="${u.description != null ? (u.description.length() > 100 ? u.description.substring(0,100) + '...' : u.description) : ''}"></p>
+                <div class="card-meta">
+                    <span class="meta-item" th:if="${u.country != null}">🌍 <span th:text="${u.country}"></span></span>
+                    <span class="meta-item" th:if="${u.address != null and !u.address.isEmpty()}">📍 <span th:text="${u.address}"></span></span>
+                    <span class="meta-item" th:if="${u.website != null}"><a th:href="${u.website}" target="_blank" style="color:#667eea; text-decoration:none;">🔗 Сайт</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+function filterCards(type) {
+    const query = document.getElementById('search-' + type).value.toLowerCase();
+    const cards = document.querySelectorAll('#grid-' + type + ' .card');
+    cards.forEach(card => {
+        const name = (card.dataset.name || '').toLowerCase();
+        const dept = (card.dataset.dept || '').toLowerCase();
+        card.style.display = (name.includes(query) || dept.includes(query)) ? '' : 'none';
+    });
+}
+
+// Открыть вкладку по хэшу URL
+const hash = window.location.hash;
+if (hash === '#professors') showTab('professors', document.querySelectorAll('.tab-btn')[1]);
+else if (hash === '#universities') showTab('universities', document.querySelectorAll('.tab-btn')[2]);
+</script>
+</body>
+</html>
+

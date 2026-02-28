@@ -5,10 +5,7 @@ target/
 .kotlin
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -37,3 +34,48 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# ── Документация (хранится локально, не в git) ───
+docs/
+
+# ── Корневые черновые .md / .html файлы ──────────
+AUTH_SYSTEM_READY.md
+BEAUTIFUL_UI.md
+FIX_PORT_8080.md
+FIXED.md
+HOW_TO_ADD_COURSE.md
+LOGIN_CREDENTIALS.md
+PORT_8080_FIX.md
+POSTMAN_EXAMPLES.md
+QUICK_START.md
+README_API.md
+README_UPDATED.md
+RESTART_GUIDE.md
+SOLUTION.md
+START_HERE.md
+SUMMARY.md
+БЫСТРЫЙ_СТАРТ.md
+КАК_ЗАПУСТИТЬ.html
+КАК_ОТКРЫТЬ_САЙТ.md
+РЕШЕНИЕ_ПРОБЛЕМЫ_ПОРТА.md
+
+# ── Логи ─────────────────────────────────────────
+*.log
+logs.txt
+
+# ── Скрипты быстрого старта ──────────────────────
+open-browser.bat
+restart-app.bat
+start.bat
+run.sh
+
+# ── Переменные окружения ─────────────────────────
+.env
+.env.*
+application-local.yml
+application-prod.yml
+
+# ── H2 Database файлы ────────────────────────────
+*.db
+*.mv.db
+*.trace.db
