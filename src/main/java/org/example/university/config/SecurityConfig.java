@@ -30,6 +30,9 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private CustomAuthenticationSuccessHandler successHandler;
+
     /**
      * BCrypt энкодер для хеширования паролей
      */
@@ -67,9 +70,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Открытые страницы для регистрации/входа
+                        // Открытые страницы для всех пользователей
                         .requestMatchers(
                                 "/",
+                                "/home",
+                                "/catalog",        // ✅ Каталог курсов
+                                "/about",          // ✅ О системе
+                                "/browse",         // ✅ API Browser
+                                "/api-docs",       // ✅ API документация
                                 "/auth/register",
                                 "/auth/login",
                                 "/register",
@@ -81,13 +89,17 @@ public class SecurityConfig {
                         ).permitAll()
                         // Страницы администратора
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Страницы студента
+                        .requestMatchers("/student/**").hasAnyRole("STUDENT", "ADMIN")
                         // Остальные страницы требуют аутентификации
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/", true)
+                        .usernameParameter("email")  // Используем email вместо username
+                        .passwordParameter("password")
+                        .successHandler(successHandler)  // Используем кастомный handler
                         .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
