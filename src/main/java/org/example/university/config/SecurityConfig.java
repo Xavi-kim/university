@@ -91,6 +91,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // Страницы студента
                         .requestMatchers("/student/**").hasAnyRole("STUDENT", "ADMIN")
+                        // Профиль пользователя (для всех авторизованных)
+                        .requestMatchers("/profile/**").authenticated()
                         // Остальные страницы требуют аутентификации
                         .anyRequest().authenticated()
                 )

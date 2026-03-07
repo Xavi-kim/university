@@ -3,6 +3,7 @@ package org.example.university.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
 
 /**
  * Course Entity for University Management System
@@ -42,6 +43,32 @@ public class Course {
 
     @Column(nullable = false)
     private boolean active = true;
+
+    // ===== ФАЗА 2: Расширение курсов =====
+
+    @Column(name = "credits")
+    private Integer credits; // Количество кредитов (3, 4, 5)
+
+    @Column(name = "max_students")
+    private Integer maxStudents; // Максимальное количество студентов
+
+    @Column(name = "start_date")
+    private LocalDate startDate; // Дата начала курса
+
+    @Column(name = "end_date")
+    private LocalDate endDate; // Дата окончания курса
+
+    @Column(name = "category", length = 100)
+    private String category; // Категория (например: "Программирование", "Математика")
+
+    @Column(name = "tags", length = 255)
+    private String tags; // Теги через запятую: "Java,Spring,Backend"
+
+    @Column(name = "image_url")
+    private String imageUrl; // URL обложки курса
+
+    @Column(name = "level", length = 50)
+    private String level = "BEGINNER"; // Уровень: BEGINNER, INTERMEDIATE, ADVANCED
 
     public Course() {
     }
@@ -122,6 +149,72 @@ public class Course {
         this.active = active;
     }
 
+    // ===== ФАЗА 2: Геттеры и сеттеры =====
+
+    public Integer getCredits() {
+        return credits;
+    }
+
+    public void setCredits(Integer credits) {
+        this.credits = credits;
+    }
+
+    public Integer getMaxStudents() {
+        return maxStudents;
+    }
+
+    public void setMaxStudents(Integer maxStudents) {
+        this.maxStudents = maxStudents;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
     @Override
     public String toString() {
         return "Course{" +
@@ -129,6 +222,8 @@ public class Course {
                 ", title='" + title + '\'' +
                 ", department='" + department + '\'' +
                 ", semester='" + semester + '\'' +
+                ", credits=" + credits +
+                ", level='" + level + '\'' +
                 ", active=" + active +
                 '}';
     }

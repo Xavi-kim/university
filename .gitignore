@@ -40,6 +40,7 @@ docs/
 
 # ── Корневые черновые .md / .html файлы ──────────
 AUTH_SYSTEM_READY.md
+AUTHENTICATION_SETUP_COMPLETE.md
 BEAUTIFUL_UI.md
 FIX_PORT_8080.md
 FIXED.md
@@ -54,6 +55,7 @@ RESTART_GUIDE.md
 SOLUTION.md
 START_HERE.md
 SUMMARY.md
+WHERE_IS_WHAT.md
 БЫСТРЫЙ_СТАРТ.md
 КАК_ЗАПУСТИТЬ.html
 КАК_ОТКРЫТЬ_САЙТ.md

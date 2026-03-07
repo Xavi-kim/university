@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Как запустить сайт</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .steps {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .step {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .url {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px 10px 10px 0;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .accounts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .account {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .account h3 {
+            color: white;
+            margin: 0 0 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="badge">University Management System</span>
+        <h1>🌐 Как открыть веб-сайт</h1>
+        <p style="font-size: 1.2em; color: #666;">Пошаговая инструкция по запуску приложения</p>
+
+        <div class="success">
+            <strong>✅ Хорошие новости!</strong> Ваше приложение успешно запущено и работает на порту 8080!
+        </div>
+
+        <h2>🚀 САМЫЙ БЫСТРЫЙ СПОСОБ</h2>
+
+        <div class="steps">
+            <div class="step">
+                <strong>Шаг 1:</strong> Найдите файл <code>open-browser.bat</code> в папке проекта
+            </div>
+            <div class="step">
+                <strong>Шаг 2:</strong> Дважды кликните на него
+            </div>
+            <div class="step">
+                <strong>Шаг 3:</strong> Браузер откроется автоматически! 🎉
+            </div>
+        </div>
+
+        <h2>🌐 Или откройте URL вручную</h2>
+
+        <div class="url">
+            http://localhost:8080/
+        </div>
+
+        <p>Скопируйте эту ссылку и вставьте в адресную строку браузера.</p>
+
+        <a href="http://localhost:8080/" class="btn" target="_blank">🚀 Открыть сайт</a>
+        <a href="http://localhost:8080/auth/login" class="btn" target="_blank">🔐 Войти в систему</a>
+
+        <h2>🔑 Тестовые аккаунты</h2>
+
+        <div class="accounts">
+            <div class="account">
+                <h3>👔 Администратор</h3>
+                <p><strong>Email:</strong> admin@university.kz</p>
+                <p><strong>Пароль:</strong> admin123</p>
+            </div>
+            <div class="account">
+                <h3>👨‍🎓 Студент</h3>
+                <p><strong>Email:</strong> asel@student.kz</p>
+                <p><strong>Пароль:</strong> 123456</p>
+            </div>
+            <div class="account">
+                <h3>👨‍🎓 Студент</h3>
+                <p><strong>Email:</strong> erlan@student.kz</p>
+                <p><strong>Пароль:</strong> 123456</p>
+            </div>
+        </div>
+
+        <h2>📋 Доступные страницы</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Страница</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>🏠 Главная</td>
+                    <td><a href="http://localhost:8080/">http://localhost:8080/</a></td>
+                </tr>
+                <tr>
+                    <td>🔐 Вход</td>
+                    <td><a href="http://localhost:8080/auth/login">http://localhost:8080/auth/login</a></td>
+                </tr>
+                <tr>
+                    <td>📝 Регистрация</td>
+                    <td><a href="http://localhost:8080/auth/register">http://localhost:8080/auth/register</a></td>
+                </tr>
+                <tr>
+                    <td>👔 Админ-панель</td>
+                    <td><a href="http://localhost:8080/admin/dashboard">http://localhost:8080/admin/dashboard</a></td>
+                </tr>
+                <tr>
+                    <td>👨‍🎓 Кабинет студента</td>
+                    <td><a href="http://localhost:8080/student/dashboard">http://localhost:8080/student/dashboard</a></td>
+                </tr>
+                <tr>
+                    <td>🎨 API Browser</td>
+                    <td><a href="http://localhost:8080/browse">http://localhost:8080/browse</a></td>
+                </tr>
+                <tr>
+                    <td>📖 API Документация</td>
+                    <td><a href="http://localhost:8080/api-docs">http://localhost:8080/api-docs</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>❌ Проблема: Порт 8080 занят</h2>
+
+        <div class="error">
+            <strong>Ошибка:</strong>
+            <div class="code" style="margin-top: 10px;">
+Web server failed to start. Port 8080 was already in use.
+            </div>
+        </div>
+
+        <h3>Решение 1: Автоматическое</h3>
+        <p>Запустите файл <code>start.bat</code> - он автоматически освободит порт и запустит приложение!</p>
+
+        <h3>Решение 2: Вручную</h3>
+        <p><strong>Шаг 1:</strong> Откройте PowerShell и найдите процесс:</p>
+        <div class="code">
+netstat -ano | Select-String ":8080"
+        </div>
+
+        <p><strong>Шаг 2:</strong> Остановите процесс (замените 12360 на ваш PID):</p>
+        <div class="code">
+Stop-Process -Id 12360 -Force
+        </div>
+
+        <p><strong>Шаг 3:</strong> Запустите приложение заново</p>
+
+        <h2>🎯 Быстрый старт</h2>
+
+        <ol>
+            <li>Убедитесь, что приложение запущено (видите логи в консоли)</li>
+            <li>Дождитесь сообщения: <code>Started Application in ... seconds</code></li>
+            <li>Откройте браузер на <strong>http://localhost:8080/</strong></li>
+            <li>Нажмите "🔐 Вход"</li>
+            <li>Введите: <code>admin@university.kz</code> / <code>admin123</code></li>
+            <li>Вы в админ-панели! 🎉</li>
+        </ol>
+
+        <h2>🛠️ Устранение проблем</h2>
+
+        <div class="warning">
+            <strong>⚠️ Белый экран / Страница не загружается?</strong>
+            <ol>
+                <li>Проверьте, что приложение запущено (смотрите логи)</li>
+                <li>Убедитесь в URL: <code>http://localhost:8080/</code></li>
+                <li>Очистите кэш браузера (Ctrl + Shift + Delete)</li>
+                <li>Попробуйте другой браузер</li>
+                <li>Перезапустите приложение через <code>start.bat</code></li>
+            </ol>
+        </div>
+
+        <h2>✅ Проверка работы</h2>
+
+        <p>Если всё работает правильно, вы должны увидеть:</p>
+
+        <div class="success">
+            <strong>✅ В консоли:</strong>
+            <div class="code" style="margin-top: 10px; background: white; color: #2d2d2d;">
+Started Application in 6.91 seconds
+Tomcat started on port 8080 (http) with context path '/'
+            </div>
+        </div>
+
+        <div class="success" style="margin-top: 15px;">
+            <strong>✅ В браузере:</strong><br>
+            Красивая главная страница с меню навигации и кнопками входа/регистрации
+        </div>
+
+        <h2>📞 Дополнительная помощь</h2>
+
+        <p>В папке проекта есть дополнительные файлы с инструкциями:</p>
+        <ul>
+            <li><strong>КАК_ОТКРЫТЬ_САЙТ.md</strong> - подробная инструкция</li>
+            <li><strong>РЕШЕНИЕ_ПРОБЛЕМЫ_ПОРТА.md</strong> - решение проблемы с портом 8080</li>
+            <li><strong>БЫСТРЫЙ_СТАРТ.md</strong> - краткое руководство</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🎉 Готово! Удачи в использовании!</h2>
+            <a href="http://localhost:8080/" class="btn" target="_blank">🚀 Открыть главную страницу</a>
+        </div>
+    </div>
+</body>
+</html>
+

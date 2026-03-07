@@ -27,5 +27,8 @@ echo API Docs: http://localhost:8080/api-docs
 echo Dashboard: http://localhost:8080/dashboard
 echo.
 
+echo Starting browser in 10 seconds...
+start "" cmd /c "timeout /t 10 /nobreak >nul & start http://localhost:8080/"
+
 call mvnw.cmd spring-boot:run
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,10 +34,30 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role = "STUDENT"; // STUDENT, ADMIN
+    private String role = "STUDENT"; // STUDENT, ADMIN, PROFESSOR
 
     @Column(nullable = false)
     private boolean enabled = true;
+
+    // ===== ФАЗА 2: Расширение профиля =====
+
+    @Column(name = "avatar_url")
+    private String avatarUrl; // URL аватара пользователя
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber; // Телефон
+
+    @Column(name = "bio", length = 500)
+    private String bio; // Краткая биография
+
+    @Column(name = "registration_date", nullable = false, updatable = false)
+    private LocalDateTime registrationDate = LocalDateTime.now(); // Дата регистрации
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false; // Верифицирован ли email
+
+    @Column(name = "verification_token")
+    private String verificationToken; // Токен для верификации email
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -117,6 +138,56 @@ public class User {
 
     public void setEnrollments(List<Enrollment> enrollments) {
         this.enrollments = enrollments;
+    }
+
+    // ===== ФАЗА 2: Геттеры и сеттеры для профиля =====
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
     }
 }
 
