@@ -43,7 +43,7 @@ public class Grade {
     private String comments; // Комментарии преподавателя
 
     @Column(name = "graded_at", nullable = false)
-    private LocalDateTime gradedAt = LocalDateTime.now();
+    private LocalDateTime gradedAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "graded_by")
@@ -51,6 +51,7 @@ public class Grade {
     private Professor gradedBy; // Кто поставил оценку
 
     public Grade() {
+        this.gradedAt = LocalDateTime.now();
     }
 
     public Grade(Enrollment enrollment, String letterGrade, Double numericGrade) {

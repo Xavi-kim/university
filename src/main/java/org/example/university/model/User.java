@@ -51,7 +51,7 @@ public class User {
     private String bio; // Краткая биография
 
     @Column(name = "registration_date", nullable = false, updatable = false)
-    private LocalDateTime registrationDate = LocalDateTime.now(); // Дата регистрации
+    private LocalDateTime registrationDate; // Дата регистрации (устанавливается в конструкторе)
 
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = false; // Верифицирован ли email
@@ -64,6 +64,7 @@ public class User {
     private List<Enrollment> enrollments = new ArrayList<>();
 
     public User() {
+        this.registrationDate = LocalDateTime.now();
     }
 
     public User(String name, String email, String password) {
@@ -72,6 +73,7 @@ public class User {
         this.password = password;
         this.role = "STUDENT";
         this.enabled = true;
+        this.registrationDate = LocalDateTime.now();
     }
 
     public User(String name, String email, String password, String role) {
@@ -80,6 +82,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.enabled = true;
+        this.registrationDate = LocalDateTime.now();
     }
 
     // Getters
