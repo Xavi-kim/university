@@ -109,6 +109,11 @@
             <span th:text="${error}"></span>
         </div>
 
+        <!-- Success message -->
+        <div th:if="${message}" class="alert alert-success" style="background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32;">
+            <span th:text="${message}"></span>
+        </div>
+
         <form method="post" action="/auth/login">
             <div class="form-group">
                 <label for="email">Email</label>
@@ -116,6 +121,7 @@
                        id="email"
                        name="email"
                        required
+                       autocomplete="email"
                        placeholder="Введите ваш email"
                        th:value="${email}">
             </div>
@@ -126,6 +132,7 @@
                        id="password"
                        name="password"
                        required
+                       autocomplete="current-password"
                        placeholder="Введите пароль">
             </div>
 
