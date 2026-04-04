@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Профессора</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.1em; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; margin-bottom: 24px; }
+        .professors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .professor-card { background: #f8f9ff; padding: 20px; border-radius: 10px; border: 2px solid #e8ecff; transition: transform 0.2s; }
+        .professor-card:hover { transform: translateY(-5px); border-color: #667eea; }
+        .professor-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .professor-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em; font-weight: bold; margin-right: 15px; }
+        .professor-info h3 { color: #333; margin-bottom: 5px; }
+        .professor-info p { color: #666; font-size: 0.9em; }
+        .professor-details { color: #555; font-size: 0.9em; margin-bottom: 15px; }
+        .professor-details div { margin-bottom: 6px; }
+        .professor-actions { display: flex; gap: 8px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 0.85em; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-chat { background: #2196F3; color: white; }
+        .badge { background: #4CAF50; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/student/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <div class="card">
+        <h1>👨‍🏫 Наши профессора</h1>
+
+        <div class="professors-grid">
+            <div class="professor-card" th:each="prof : ${professors}">
+                <div class="professor-header">
+                    <div class="professor-avatar" th:text="${#strings.substring(prof.name, 0, 1)}">П</div>
+                    <div class="professor-info">
+                        <h3 th:text="${prof.name}">Имя профессора</h3>
+                        <p th:text="${prof.department}">Кафедра</p>
+                    </div>
+                </div>
+
+                <div class="professor-details">
+                    <div>📧 <span th:text="${prof.email}">email@example.com</span></div>
+                    <div th:if="${prof.university != null}">
+                        🏛 <span th:text="${prof.university.name}">Университет</span>
+                    </div>
+                    <div th:if="${prof.bio != null and !prof.bio.isEmpty()}">
+                        💼 <span th:text="${prof.bio}">Биография</span>
+                    </div>
+                    <div>
+                        <span class="badge">Активный</span>
+                    </div>
+                </div>
+
+                <div class="professor-actions">
+                    <a th:href="@{/student/professors/{id}(id=${prof.id})}" class="btn btn-primary">
+                        📚 Курсы профессора
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -45,6 +45,13 @@ public class Professor {
     @Column(nullable = false)
     private boolean active = true;
 
+    // Transient поля для статистики (не сохраняются в БД)
+    @Transient
+    private int coursesCount;
+
+    @Transient
+    private int studentsCount;
+
     public Professor() {
     }
 
@@ -89,6 +96,14 @@ public class Professor {
         return active;
     }
 
+    public int getCoursesCount() {
+        return coursesCount;
+    }
+
+    public int getStudentsCount() {
+        return studentsCount;
+    }
+
     // Setters
     public void setId(Long id) {
         this.id = id;
@@ -120,6 +135,14 @@ public class Professor {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public void setCoursesCount(int coursesCount) {
+        this.coursesCount = coursesCount;
+    }
+
+    public void setStudentsCount(int studentsCount) {
+        this.studentsCount = studentsCount;
     }
 
     @Override

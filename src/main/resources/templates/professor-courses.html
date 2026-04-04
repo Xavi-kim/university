@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои курсы</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.1em; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 24px; }
+        .courses-grid { display: grid; gap: 20px; }
+        .course-card { background: #f8f9ff; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+        .course-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+        .course-title { font-size: 1.2em; font-weight: 600; color: #333; }
+        .course-meta { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .course-description { color: #555; margin-bottom: 15px; }
+        .course-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 0.85em; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #4CAF50; color: white; }
+        .btn-warning { background: #ff9800; color: white; }
+        .badge { background: #4CAF50; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; }
+        .create-btn { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/professor/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <div class="card">
+        <h1>📚 Мои курсы</h1>
+
+        <a href="/professor/courses/new" class="create-btn">➕ Создать новый курс</a>
+
+        <div class="courses-grid" th:if="${not #lists.isEmpty(courses)}">
+            <div class="course-card" th:each="course : ${courses}">
+                <div class="course-header">
+                    <div>
+                        <div class="course-title" th:text="${course.title}">Название курса</div>
+                        <div class="course-meta">
+                            📂 <span th:text="${course.department}">Кафедра</span> •
+                            📅 <span th:text="${course.semester}">Семестр</span> •
+                            💯 <span th:text="${course.credits}">3</span> кредитов
+                        </div>
+                    </div>
+                    <span class="badge" th:if="${course.active}">Активен</span>
+                </div>
+
+                <div class="course-description" th:if="${course.description}" th:text="${course.description}">
+                    Описание курса
+                </div>
+
+                <div class="course-meta">
+                    👥 Студентов: <strong>0</strong> / <span th:text="${course.maxStudents}">30</span>
+                </div>
+
+                <div class="course-actions">
+                    <a th:href="@{/professor/courses/{id}/students(id=${course.id})}" class="btn btn-primary">
+                        👥 Студенты
+                    </a>
+                    <a th:href="@{/professor/courses/{id}/homework(id=${course.id})}" class="btn btn-success">
+                        📝 Задания
+                    </a>
+                    <a th:href="@{/professor/courses/{id}/edit(id=${course.id})}" class="btn btn-warning">
+                        ✏️ Редактировать
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(courses)}" style="text-align: center; padding: 60px; color: #999;">
+            <h3>У вас пока нет курсов</h3>
+            <p style="margin: 20px 0;">Создайте свой первый курс!</p>
+            <a href="/professor/courses/new" class="create-btn">➕ Создать курс</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

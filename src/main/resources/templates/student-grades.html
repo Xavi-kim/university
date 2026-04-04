@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои оценки</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .gpa-section { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 30px; }
+        .gpa-value { font-size: 3em; font-weight: 700; margin: 10px 0; }
+        .gpa-label { font-size: 1.1em; opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9ff; padding: 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e8ecff; }
+        td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+        tr:hover td { background: #fafbff; }
+        .grade-excellent { color: #4CAF50; font-weight: 600; }
+        .grade-good { color: #2196F3; font-weight: 600; }
+        .grade-average { color: #ff9800; font-weight: 600; }
+        .grade-poor { color: #f44336; font-weight: 600; }
+        .empty { text-align: center; padding: 60px; color: #999; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/student/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <!-- GPA -->
+    <div class="gpa-section">
+        <div class="gpa-label">Мой средний балл (GPA)</div>
+        <div class="gpa-value" th:text="${avgGPA != null ? #numbers.formatDecimal(avgGPA, 1, 2) : '0.00'}">0.00</div>
+        <div class="gpa-label">из 4.00</div>
+    </div>
+
+    <div class="card">
+        <h1>📊 Мои оценки</h1>
+        <p style="color: #666; margin-bottom: 24px;">Все оценки за курсы</p>
+
+        <div th:if="${not #lists.isEmpty(grades)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Курс</th>
+                        <th>Задание</th>
+                        <th>Тип</th>
+                        <th>Оценка</th>
+                        <th>Баллы</th>
+                        <th>GPA</th>
+                        <th>Комментарий</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="grade : ${grades}">
+                        <td>
+                            <strong th:text="${grade.enrollment.course.title}">Курс</strong><br>
+                            <small style="color: #666;" th:text="${grade.enrollment.course.department}">Кафедра</small>
+                        </td>
+                        <td th:text="${grade.assignmentName}">Название</td>
+                        <td th:text="${grade.assignmentType}">Тип</td>
+                        <td>
+                            <span class="grade-excellent"
+                                  th:classappend="${grade.letterGrade == 'A' || grade.letterGrade == 'A-'} ? 'grade-excellent' :
+                                                  (${grade.letterGrade == 'B+' || grade.letterGrade == 'B' || grade.letterGrade == 'B-'} ? 'grade-good' :
+                                                  (${grade.letterGrade == 'C+' || grade.letterGrade == 'C'} ? 'grade-average' : 'grade-poor'))"
+                                  th:text="${grade.letterGrade}">A</span>
+                        </td>
+                        <td th:text="${grade.numericGrade}">95</td>
+                        <td th:text="${#numbers.formatDecimal(grade.gradePoints, 1, 2)}">4.00</td>
+                        <td th:text="${grade.comments}">Отлично</td>
+                        <td th:text="${#temporals.format(grade.gradedAt, 'dd.MM.yyyy')}">01.01.2024</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${#lists.isEmpty(grades)}" class="empty">
+            <h3>📚 Оценок пока нет</h3>
+            <p>Запишитесь на курсы и выполняйте задания</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Домашние задания</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 24px; }
+        .courses-tabs { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+        .course-tab { padding: 10px 20px; background: #f0f0f0; border-radius: 8px; text-decoration: none; color: #333; transition: all 0.2s; }
+        .course-tab:hover, .course-tab.active { background: #667eea; color: white; }
+        .homework-item { background: #f8f9ff; padding: 20px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #667eea; }
+        .hw-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+        .hw-title { font-size: 1.1em; font-weight: 600; color: #333; }
+        .hw-meta { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .hw-description { color: #555; margin-bottom: 12px; }
+        .hw-actions { display: flex; gap: 8px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; text-decoration: none; display: inline-block; color: white; cursor: pointer; }
+        .btn-primary { background: #667eea; }
+        .btn-success { background: #4CAF50; }
+        .badge { padding: 6px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+        .badge-pending { background: #ff9800; color: white; }
+        .badge-submitted { background: #2196F3; color: white; }
+        .badge-graded { background: #4CAF50; color: white; }
+        .badge-late { background: #f44336; color: white; }
+        .submission-form { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; margin-top: 12px; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; min-height: 100px; }
+        .grade-info { background: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/student/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <div class="card">
+        <h1>📝 Мои домашние задания</h1>
+
+        <!-- Табы по курсам -->
+        <div class="courses-tabs">
+            <a href="/student/homework" class="course-tab active">Все курсы</a>
+            <a th:each="enr : ${enrollments}"
+               th:href="@{/student/courses/{id}/homework(id=${enr.course.id})}"
+               class="course-tab"
+               th:text="${enr.course.title}">Курс</a>
+        </div>
+
+        <!-- Список всех сдач -->
+        <div th:if="${not #lists.isEmpty(submissions)}">
+            <h3 style="margin-bottom: 20px;">Мои сдачи</h3>
+
+            <div th:each="sub : ${submissions}">
+                <div class="homework-item">
+                    <div class="hw-header">
+                        <div>
+                            <div class="hw-title" th:text="${sub.homework.title}">Название задания</div>
+                            <div class="hw-meta">
+                                📚 <span th:text="${sub.homework.course.title}">Курс</span> •
+                                📅 Срок: <span th:text="${#temporals.format(sub.homework.dueDate, 'dd.MM.yyyy HH:mm')}">дата</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-submitted"
+                              th:classappend="${sub.status == 'GRADED'} ? 'badge-graded' : (${sub.status == 'LATE'} ? 'badge-late' : '')"
+                              th:text="${sub.status}">SUBMITTED</span>
+                    </div>
+
+                    <div class="hw-description">
+                        <strong>Мой ответ:</strong><br>
+                        <span th:text="${sub.content}">содержимое</span>
+                    </div>
+
+                    <!-- Если проверено -->
+                    <div th:if="${sub.status == 'GRADED'}" class="grade-info">
+                        <strong>✅ Проверено!</strong><br>
+                        Баллы: <strong th:text="${sub.points}">0</strong> из <span th:text="${sub.homework.maxPoints}">100</span><br>
+                        <span th:if="${sub.feedback != null and !sub.feedback.isEmpty()}">
+                            Комментарий: <span th:text="${sub.feedback}">отлично</span>
+                        </span>
+                    </div>
+
+                    <!-- Если ожидает проверки -->
+                    <div th:unless="${sub.status == 'GRADED'}" style="color: #ff9800; margin-top: 10px;">
+                        ⏳ Ожидает проверки преподавателем
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(submissions)}" style="text-align: center; padding: 40px; color: #999;">
+            <p>У вас пока нет сданных заданий</p>
+            <p style="margin-top: 10px;">Выберите курс выше, чтобы увидеть задания</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

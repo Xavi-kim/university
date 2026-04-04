@@ -29,19 +29,28 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                        HttpServletResponse response,
                                        Authentication authentication) throws IOException, ServletException {
 
+        System.out.println("✅ [AUTH SUCCESS] Успешная аутентификация!");
+
         // Получаем email пользователя
         String email = authentication.getName();
+        System.out.println("   Email: " + email);
+        System.out.println("   Authorities: " + authentication.getAuthorities());
 
         // Загружаем пользователя из БД
         User user = userService.getUserByEmail(email).orElse(null);
 
         if (user != null) {
+            System.out.println("   User найден: " + user.getName());
+            System.out.println("   Role: " + user.getRole());
+
             // Сохраняем данные пользователя в HTTP сессию
             HttpSession session = request.getSession();
             session.setAttribute("userId", user.getId());
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("userName", user.getName());
             session.setAttribute("userRole", user.getRole());
+
+            System.out.println("   Session ID: " + session.getId());
 
             // Определяем URL для редиректа в зависимости от роли
             String redirectUrl = "/";
@@ -54,9 +63,14 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 redirectUrl = "/professor/dashboard";
             }
 
+            System.out.println("   Redirect: " + redirectUrl);
+            System.out.println();
+
             // Перенаправляем пользователя
             response.sendRedirect(redirectUrl);
         } else {
+            System.out.println("   ⚠️ User не найден в БД, редирект на главную");
+            System.out.println();
             // Если пользователь не найден, перенаправляем на главную
             response.sendRedirect("/");
         }

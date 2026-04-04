@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои оценки</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/student/dashboard" class="logo">🎓 University System</a>
+            <div class="nav-links">
+                <span class="user-name" th:text="${userName}">Студент</span>
+                <a href="/student/dashboard">Панель</a>
+                <a href="/student/catalog">Каталог</a>
+                <a href="/student/my-courses">Мои курсы</a>
+                <a href="/student/grades" class="active">Оценки</a>
+                <a href="/student/chat">Чат</a>
+                <a href="/auth/logout">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>📊 Мои оценки</h1>
+
+        <!-- Средний GPA -->
+        <div class="card gpa-card">
+            <h2>Средний GPA</h2>
+            <div class="gpa-display">
+                <span class="gpa-value" th:text="${averageGPA}">0.00</span>
+                <span class="gpa-max">/ 4.0</span>
+            </div>
+            <div class="gpa-bar">
+                <div class="gpa-progress"
+                     th:style="'width: ' + (${#numbers.formatDecimal(#numbers.parseDouble(averageGPA), 1, 2)} * 25) + '%'"></div>
+            </div>
+        </div>
+
+        <!-- Таблица оценок -->
+        <div class="card">
+            <h2>Оценки по курсам</h2>
+
+            <div th:if="${enrollments != null && !#lists.isEmpty(enrollments)}">
+                <table class="grades-table">
+                    <thead>
+                        <tr>
+                            <th>Курс</th>
+                            <th>Код</th>
+                            <th>Кредиты</th>
+                            <th>Семестр</th>
+                            <th>Буквенная</th>
+                            <th>Числовая</th>
+                            <th>GPA</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="info : ${enrollments}">
+                            <td>
+                                <strong th:text="${info.enrollment.course.name}">Название курса</strong>
+                                <p class="text-muted" th:text="${info.enrollment.course.professor.name}">Профессор</p>
+                            </td>
+                            <td th:text="${info.enrollment.course.code}">CS101</td>
+                            <td th:text="${info.enrollment.course.credits}">5</td>
+                            <td th:text="${info.enrollment.course.semester}">Осень 2025</td>
+
+                            <!-- Если есть оценка -->
+                            <td th:if="${info.grade != null}">
+                                <span class="grade-badge"
+                                      th:classappend="${#strings.startsWith(info.grade.letterGrade, 'A') ? 'grade-a' :
+                                                       (#strings.startsWith(info.grade.letterGrade, 'B') ? 'grade-b' :
+                                                       (#strings.startsWith(info.grade.letterGrade, 'C') ? 'grade-c' : 'grade-d'))}"
+                                      th:text="${info.grade.letterGrade}">A</span>
+                            </td>
+                            <td th:if="${info.grade != null}"
+                                th:text="${info.grade.numericGrade} + '%'">95%</td>
+                            <td th:if="${info.grade != null}"
+                                th:text="${#numbers.formatDecimal(info.grade.gpa, 1, 2)}">4.00</td>
+
+                            <!-- Если оценки нет -->
+                            <td th:if="${info.grade == null}" colspan="3" class="text-center">
+                                <span class="badge status-pending">Не оценено</span>
+                            </td>
+
+                            <td>
+                                <a th:href="@{/student/courses/{id}(id=${info.enrollment.course.id})}"
+                                   class="btn btn-sm btn-secondary">Детали</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Статистика -->
+                <div class="stats-summary">
+                    <div class="stat-box">
+                        <div class="stat-number" th:text="${#lists.size(enrollments)}">6</div>
+                        <div class="stat-label">Всего курсов</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number"
+                             th:text="${#lists.size(#lists.toList(enrollments.?[grade != null]))}">3</div>
+                        <div class="stat-label">Оценено</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" th:text="${averageGPA}">0.00</div>
+                        <div class="stat-label">Средний GPA</div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${enrollments == null || #lists.isEmpty(enrollments)}" class="empty-state">
+                <p>📚 Вы еще не записаны ни на один курс</p>
+                <a href="/student/catalog" class="btn btn-primary">Просмотреть каталог курсов</a>
+            </div>
+        </div>
+
+        <!-- Легенда оценок -->
+        <div class="card">
+            <h3>📖 Шкала оценок</h3>
+            <table class="legend-table">
+                <thead>
+                    <tr>
+                        <th>Буквенная</th>
+                        <th>Числовая</th>
+                        <th>GPA</th>
+                        <th>Описание</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="grade-badge grade-a">A</span></td>
+                        <td>90-100%</td>
+                        <td>4.0</td>
+                        <td>Отлично</td>
+                    </tr>
+                    <tr>
+                        <td><span class="grade-badge grade-b">B+</span></td>
+                        <td>85-89%</td>
+                        <td>3.3</td>
+                        <td>Очень хорошо</td>
+                    </tr>
+                    <tr>
+                        <td><span class="grade-badge grade-b">B</span></td>
+                        <td>80-84%</td>
+                        <td>3.0</td>
+                        <td>Хорошо</td>
+                    </tr>
+                    <tr>
+                        <td><span class="grade-badge grade-c">C</span></td>
+                        <td>70-79%</td>
+                        <td>2.0</td>
+                        <td>Удовлетворительно</td>
+                    </tr>
+                    <tr>
+                        <td><span class="grade-badge grade-d">D/F</span></td>
+                        <td>0-69%</td>
+                        <td>0.0-1.0</td>
+                        <td>Неудовлетворительно</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .gpa-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .gpa-card h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .gpa-display {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gpa-value {
+            font-size: 72px;
+            font-weight: bold;
+        }
+
+        .gpa-max {
+            font-size: 32px;
+            opacity: 0.8;
+        }
+
+        .gpa-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .gpa-progress {
+            height: 100%;
+            background: white;
+            transition: width 0.3s ease;
+        }
+
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .grades-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .grades-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .grades-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .grade-a {
+            background: #27ae60;
+            color: white;
+        }
+
+        .grade-b {
+            background: #3498db;
+            color: white;
+        }
+
+        .grade-c {
+            background: #f39c12;
+            color: white;
+        }
+
+        .grade-d {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        .legend-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .legend-table th,
+        .legend-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .legend-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .text-muted {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .status-pending {
+            background: #95a5a6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>
+

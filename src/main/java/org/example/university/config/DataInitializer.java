@@ -40,15 +40,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Если данные уже есть — не трогаем (PostgreSQL сохраняет данные между запусками)
-        if (userRepository.count() > 0) {
-            System.out.println("✅ База данных уже содержит данные, инициализация пропущена.");
-            System.out.println("   👤 Пользователей: " + userRepository.count());
-            System.out.println("   📚 Университетов: " + universityRepository.count());
-            System.out.println("   👨‍🏫 Преподавателей: " + professorRepository.count());
-            System.out.println("   📖 Курсов: " + courseRepository.count());
-            return;
-        }
+        System.out.println("🚀 Начинаем инициализацию базы данных...");
 
         // Очистка в правильном порядке (сначала зависимые таблицы)
         enrollmentRepository.deleteAll();
@@ -61,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
         // Админ
         User admin = new User();
         admin.setName("Администратор");
-        admin.setEmail("admin@university.kz");
+        admin.setEmail("admin@kaznu.kz");
         admin.setPassword(passwordEncoder.encode("admin123"));
         admin.setRole("ADMIN");
         admin.setEnabled(true);
@@ -69,30 +61,69 @@ public class DataInitializer implements CommandLineRunner {
 
         // Тестовые студенты
         User student1 = new User();
-        student1.setName("Асель Токарева");
-        student1.setEmail("asel@student.kz");
-        student1.setPassword(passwordEncoder.encode("123456"));
+        student1.setName("Асылбек Касымов");
+        student1.setEmail("asylbek.kasymov@student.kaznu.kz");
+        student1.setPassword(passwordEncoder.encode("student123"));
         student1.setRole("STUDENT");
         student1.setEnabled(true);
+        student1.setBio("Студент 3 курса, специальность ИТ");
         userRepository.save(student1);
 
         User student2 = new User();
-        student2.setName("Ерлан Сатпаев");
-        student2.setEmail("erlan@student.kz");
-        student2.setPassword(passwordEncoder.encode("123456"));
+        student2.setName("Динара Сагиева");
+        student2.setEmail("dinara.sagieva@student.kaznu.kz");
+        student2.setPassword(passwordEncoder.encode("student123"));
         student2.setRole("STUDENT");
         student2.setEnabled(true);
+        student2.setBio("Студентка 2 курса, специальность ПИ");
         userRepository.save(student2);
+
+        User student3 = new User();
+        student3.setName("Ерлан Нурланов");
+        student3.setEmail("erlan.nurlanov@student.kaznu.kz");
+        student3.setPassword(passwordEncoder.encode("student123"));
+        student3.setRole("STUDENT");
+        student3.setEnabled(true);
+        student3.setBio("Студент 4 курса, специальность КН");
+        userRepository.save(student3);
+
+        // Тестовые преподаватели (пользователи)
+        User teacher1 = new User();
+        teacher1.setName("Айгуль Нурбекова");
+        teacher1.setEmail("aigul.nurbekova@kaznu.kz");
+        teacher1.setPassword(passwordEncoder.encode("professor123"));
+        teacher1.setRole("PROFESSOR");
+        teacher1.setEnabled(true);
+        teacher1.setBio("Профессор кафедры ИТ");
+        userRepository.save(teacher1);
+
+        User teacher2 = new User();
+        teacher2.setName("Марат Токаев");
+        teacher2.setEmail("marat.tokayev@kaznu.kz");
+        teacher2.setPassword(passwordEncoder.encode("professor123"));
+        teacher2.setRole("PROFESSOR");
+        teacher2.setEnabled(true);
+        teacher2.setBio("Доцент кафедры ПИ");
+        userRepository.save(teacher2);
+
+        User teacher3 = new User();
+        teacher3.setName("Алия Жакупова");
+        teacher3.setEmail("aliya.zhakupova@kaznu.kz");
+        teacher3.setPassword(passwordEncoder.encode("professor123"));
+        teacher3.setRole("PROFESSOR");
+        teacher3.setEnabled(true);
+        teacher3.setBio("Старший преподаватель");
+        userRepository.save(teacher3);
 
         // Создание университетов
         University knu = new University(
-            "Казахский Национальный Университет им. аль-Фараби",
-            "пр. аль-Фараби, 71",
+            "Казахский Национальный Университет",
+            "пр. Аль-Фараби, 71",
             "Алматы",
             "Казахстан"
         );
         knu.setWebsite("https://www.kaznu.kz");
-        knu.setDescription("Ведущий университет Казахстана с богатой историей и традициями");
+        knu.setDescription("Ведущий университет Казахстана");
         universityRepository.save(knu);
 
         University enu = new University(
@@ -119,125 +150,80 @@ public class DataInitializer implements CommandLineRunner {
         Professor prof1 = new Professor(
             "Айгуль Нурбекова",
             "aigul.nurbekova@kaznu.kz",
-            "Информатика",
+            "Информационные технологии",
             knu
         );
-        prof1.setBio("Доктор технических наук, специалист по искусственному интеллекту");
+        prof1.setBio("Профессор кафедры ИТ. Специализация: базы данных, веб-разработка");
         professorRepository.save(prof1);
 
         Professor prof2 = new Professor(
-            "Ерлан Сагинов",
-            "erlan.saginov@enu.kz",
-            "Математика",
-            enu
+            "Марат Токаев",
+            "marat.tokayev@kaznu.kz",
+            "Программная инженерия",
+            knu
         );
-        prof2.setBio("Кандидат физико-математических наук, эксперт по прикладной математике");
+        prof2.setBio("Доцент кафедры ПИ. Специализация: Java, Spring Framework");
         professorRepository.save(prof2);
 
         Professor prof3 = new Professor(
-            "Дина Абдуллаева",
-            "dina.abdullayeva@kbtu.kz",
-            "Программирование",
-            kbtu
-        );
-        prof3.setBio("Магистр компьютерных наук, специалист по разработке программного обеспечения");
-        professorRepository.save(prof3);
-
-        Professor prof4 = new Professor(
-            "Марат Токаев",
-            "marat.tokayev@kaznu.kz",
-            "Физика",
+            "Алия Жакупова",
+            "aliya.zhakupova@kaznu.kz",
+            "Компьютерные науки",
             knu
         );
-        prof4.setBio("Доктор физико-математических наук, исследователь в области квантовой физики");
-        professorRepository.save(prof4);
+        prof3.setBio("Старший преподаватель. Специализация: алгоритмы, структуры данных");
+        professorRepository.save(prof3);
 
-        Professor prof5 = new Professor(
-            "Сауле Жанузакова",
-            "saule.zhanuzakova@enu.kz",
-            "Экономика",
-            enu
-        );
-        prof5.setBio("Кандидат экономических наук, эксперт по макроэкономике");
-        professorRepository.save(prof5);
 
         // Создание курсов
         Course course1 = new Course(
-            "Искусственный интеллект",
-            "Изучение основ машинного обучения, нейронных сетей и глубокого обучения. " +
-            "Курс включает теоретические основы и практические задания по разработке AI-моделей.",
-            "Информатика",
-            "Осень 2024",
+            "Базы данных",
+            "Изучение реляционных БД, SQL, проектирование схем. Практика: PostgreSQL, индексы, транзакции, оптимизация запросов.",
+            "Информационные технологии",
+            "Осень 2025",
             prof1,
             knu
         );
+        course1.setCredits(5);
+        course1.setMaxStudents(30);
         courseRepository.save(course1);
 
         Course course2 = new Course(
-            "Дискретная математика",
-            "Фундаментальный курс по теории множеств, комбинаторике, теории графов и математической логике. " +
-            "Необходим для понимания алгоритмов и структур данных.",
-            "Математика",
-            "Весна 2025",
+            "Веб-разработка на Spring",
+            "Разработка веб-приложений на Java Spring Boot. REST API, Spring Security, JPA/Hibernate, Thymeleaf.",
+            "Программная инженерия",
+            "Весна 2026",
             prof2,
-            enu
+            knu
         );
+        course2.setCredits(6);
+        course2.setMaxStudents(25);
         courseRepository.save(course2);
 
         Course course3 = new Course(
-            "Разработка веб-приложений",
-            "Практический курс по созданию современных веб-приложений с использованием Spring Boot, " +
-            "React, и RESTful API. Включает проектную работу.",
-            "Программирование",
-            "Осень 2024",
+            "Алгоритмы и структуры данных",
+            "Основные алгоритмы сортировки, поиска. Структуры данных: списки, деревья, графы. Анализ сложности.",
+            "Компьютерные науки",
+            "Осень 2025",
             prof3,
-            kbtu
+            knu
         );
+        course3.setCredits(4);
+        course3.setMaxStudents(40);
         courseRepository.save(course3);
 
         Course course4 = new Course(
-            "Квантовая механика",
-            "Углубленное изучение квантовой теории, принципа неопределенности, волновой функции. " +
-            "Курс для студентов физических специальностей.",
-            "Физика",
-            "Весна 2025",
-            prof4,
+            "Объектно-ориентированное программирование",
+            "ООП на Java: классы, наследование, полиморфизм, интерфейсы. Паттерны проектирования.",
+            "Программная инженерия",
+            "Весна 2026",
+            prof2,
             knu
         );
+        course4.setCredits(5);
+        course4.setMaxStudents(35);
         courseRepository.save(course4);
 
-        Course course5 = new Course(
-            "Макроэкономика",
-            "Изучение национальной экономики в целом: ВВП, инфляция, безработица, денежно-кредитная политика. " +
-            "Анализ современных экономических моделей.",
-            "Экономика",
-            "Осень 2024",
-            prof5,
-            enu
-        );
-        courseRepository.save(course5);
-
-        Course course6 = new Course(
-            "Структуры данных и алгоритмы",
-            "Изучение основных структур данных (массивы, списки, деревья, графы) и алгоритмов их обработки. " +
-            "Анализ сложности алгоритмов.",
-            "Информатика",
-            "Весна 2025",
-            prof1,
-            knu
-        );
-        courseRepository.save(course6);
-
-        Course course7 = new Course(
-            "Базы данных",
-            "Проектирование и разработка реляционных баз данных. SQL, нормализация, транзакции, индексы. " +
-            "Практика работы с PostgreSQL и MySQL.",
-            "Программирование",
-            "Осень 2024",
-            prof3,
-            kbtu
-        );
-        courseRepository.save(course7);
 
         System.out.println("✅ База данных инициализирована тестовыми данными:");
         System.out.println("   👤 Пользователей: " + userRepository.count());
@@ -245,9 +231,15 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("   👨‍🏫 Преподавателей: " + professorRepository.count());
         System.out.println("   📖 Курсов: " + courseRepository.count());
         System.out.println("\n🔑 Тестовые аккаунты:");
-        System.out.println("   АДМИН: admin@university.kz / admin123");
-        System.out.println("   СТУДЕНТ: asel@student.kz / 123456");
-        System.out.println("   СТУДЕНТ: erlan@student.kz / 123456");
+        System.out.println("   ═══════════════════════════════════════════════════════");
+        System.out.println("   АДМИН:        admin@kaznu.kz / admin123");
+        System.out.println("   ПРОФЕССОР:    aigul.nurbekova@kaznu.kz / professor123");
+        System.out.println("   ПРОФЕССОР:    marat.tokayev@kaznu.kz / professor123");
+        System.out.println("   ПРОФЕССОР:    aliya.zhakupova@kaznu.kz / professor123");
+        System.out.println("   СТУДЕНТ:      asylbek.kasymov@student.kaznu.kz / student123");
+        System.out.println("   СТУДЕНТ:      dinara.sagieva@student.kaznu.kz / student123");
+        System.out.println("   СТУДЕНТ:      erlan.nurlanov@student.kaznu.kz / student123");
+        System.out.println("   ═══════════════════════════════════════════════════════");
     }
 }
 

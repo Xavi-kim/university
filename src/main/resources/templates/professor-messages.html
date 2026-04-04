@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Сообщения — Профессор</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.1em; }
+        .back-link:hover { text-decoration: underline; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 20px; overflow: hidden; }
+        .card-header { padding: 22px 28px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h1 { color: #667eea; font-size: 1.4em; }
+        .badge-unread { background: #f44336; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600; }
+        .compose-form { padding: 22px 28px; background: #f8f9ff; border-bottom: 2px solid #eef0ff; }
+        .compose-form h3 { color: #667eea; margin-bottom: 14px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.85em; font-weight: 600; color: #666; margin-bottom: 5px; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 9px 13px; border: 1.5px solid #ddd; border-radius: 8px;
+            font-family: inherit; font-size: 0.93em; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group textarea { resize: vertical; min-height: 75px; }
+        .autocomplete-wrap { position: relative; }
+        .autocomplete-list {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: white; border: 1.5px solid #ddd; border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12); z-index: 200;
+            max-height: 220px; overflow-y: auto; display: none;
+        }
+        .ac-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
+        .ac-item:hover { background: #f0f4ff; }
+        .ac-name { font-weight: 600; color: #333; font-size: 0.9em; }
+        .ac-email { font-size: 0.8em; color: #888; margin-top: 2px; }
+        .ac-role { font-size: 0.75em; color: #667eea; }
+        .btn-send { padding: 10px 26px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-send:hover { opacity: 0.9; }
+        .hint { font-size: 0.8em; color: #999; margin-top: 4px; }
+        .alert { padding: 10px 16px; border-radius: 6px; margin-bottom: 12px; font-size: 0.9em; }
+        .alert-error { background: #f8d7da; color: #721c24; border-left: 4px solid #f44336; }
+        .conv-list { padding: 0; }
+        .conv-item { display: flex; align-items: center; gap: 14px; padding: 15px 28px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: inherit; transition: background 0.12s; }
+        .conv-item:hover { background: #f8f9ff; }
+        .conv-item.unread { background: #f0f4ff; }
+        .avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2em; font-weight: 700; flex-shrink: 0; }
+        .conv-info { flex: 1; min-width: 0; }
+        .conv-name { font-weight: 600; color: #333; margin-bottom: 2px; }
+        .conv-role { font-size: 0.78em; color: #667eea; margin-bottom: 2px; }
+        .conv-preview { color: #999; font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .conv-meta { text-align: right; flex-shrink: 0; }
+        .conv-time { font-size: 0.78em; color: #bbb; }
+        .dot { width: 9px; height: 9px; background: #667eea; border-radius: 50%; margin: 4px auto 0; }
+        .empty { text-align: center; padding: 50px; color: #bbb; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/professor/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <div class="card">
+        <div class="card-header">
+            <h1>📬 Сообщения</h1>
+            <span th:if="${unreadCount > 0}" class="badge-unread" th:text="${unreadCount + ' непрочитано'}"></span>
+        </div>
+
+        <div class="compose-form">
+            <h3>✉️ Новое сообщение</h3>
+            <div th:if="${param.error}" class="alert alert-error">❌ Пользователь не найден. Проверьте email.</div>
+
+            <form th:action="@{/professor/messages/send}" method="post">
+                <div class="form-group">
+                    <label>Кому — начните вводить имя или email:</label>
+                    <div class="autocomplete-wrap">
+                        <input type="text" id="searchInput" placeholder="Введите имя или email..." autocomplete="off" />
+                        <div class="autocomplete-list" id="acList"></div>
+                    </div>
+                    <div class="hint">Выберите из списка или введите email ниже вручную</div>
+                </div>
+
+                <input type="hidden" name="recipientId" id="recipientId" />
+
+                <div class="form-group">
+                    <label>Email получателя (если не выбран выше):</label>
+                    <input type="email" name="recipientEmail" id="recipientEmail" placeholder="example@student.kaznu.kz" />
+                </div>
+
+                <div class="form-group">
+                    <label>Сообщение:</label>
+                    <textarea name="content" placeholder="Введите текст сообщения..." required></textarea>
+                </div>
+                <button type="submit" class="btn-send">📤 Отправить</button>
+            </form>
+        </div>
+
+        <div class="conv-list">
+            <div th:if="${#lists.isEmpty(conversations)}" class="empty">
+                <p style="font-size: 1.5em; margin-bottom: 8px;">📭</p>
+                <p>Нет сообщений. Напишите первым!</p>
+            </div>
+            <a th:each="conv : ${conversations}"
+               th:href="@{/professor/messages/{id}(id=${conv.otherUser.id})}"
+               class="conv-item" th:classappend="${conv.hasUnread} ? 'unread' : ''">
+                <div class="avatar" th:text="${#strings.substring(conv.otherUser.name, 0, 1)}">A</div>
+                <div class="conv-info">
+                    <div class="conv-name" th:text="${conv.otherUser.name}">Имя</div>
+                    <div class="conv-role" th:text="${conv.otherUser.role}">STUDENT</div>
+                    <div class="conv-preview" th:text="${conv.lastMessage}">Последнее сообщение...</div>
+                </div>
+                <div class="conv-meta">
+                    <div class="conv-time" th:text="${#temporals.format(conv.lastTime, 'dd.MM HH:mm')}">12:00</div>
+                    <div th:if="${conv.hasUnread}" class="dot"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+const searchInput = document.getElementById('searchInput');
+const acList = document.getElementById('acList');
+const recipientIdField = document.getElementById('recipientId');
+const recipientEmailField = document.getElementById('recipientEmail');
+let timer;
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(timer);
+    const q = this.value.trim();
+    if (q.length < 2) { acList.style.display = 'none'; return; }
+    timer = setTimeout(() => {
+        fetch('/api/users/search?q=' + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(users => {
+                if (!users.length) { acList.style.display = 'none'; return; }
+                acList.innerHTML = users.map(u =>
+                    `<div class="ac-item" onclick="selectUser(${u.id}, '${escapeHtml(u.name)}', '${escapeHtml(u.email)}')">
+                        <div class="ac-name">${escapeHtml(u.name)}</div>
+                        <div class="ac-email">${escapeHtml(u.email)} <span class="ac-role">${u.role}</span></div>
+                    </div>`
+                ).join('');
+                acList.style.display = 'block';
+            })
+            .catch(() => { acList.style.display = 'none'; });
+    }, 280);
+});
+
+function selectUser(id, name, email) {
+    recipientIdField.value = id;
+    recipientEmailField.value = email;
+    searchInput.value = name + ' (' + email + ')';
+    acList.style.display = 'none';
+}
+
+function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('click', e => {
+    if (!searchInput.contains(e.target) && !acList.contains(e.target)) acList.style.display = 'none';
+});
+</script>
+</body>
+</html>

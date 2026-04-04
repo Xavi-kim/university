@@ -10,7 +10,12 @@
         .container { max-width: 1400px; margin: 0 auto; }
         .header { background: white; padding: 20px 30px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .header h1 { color: #667eea; font-size: 1.6em; }
+        .btn-home { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 0.9em; margin-right: 10px; }
+        .btn-home:hover { background: #45a049; }
+        .btn-profile { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 0.9em; margin-right: 10px; }
+        .btn-profile:hover { background: #5568d3; }
         .btn-logout { padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 0.9em; }
+        .btn-logout:hover { background: #d32f2f; }
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: white; padding: 24px; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .stat-number { font-size: 2.8em; font-weight: 700; color: #667eea; }
@@ -42,6 +47,8 @@
         <h1>🎓 Панель администратора</h1>
         <div style="display:flex; align-items:center; gap:16px;">
             <span>👋 <strong th:text="${userName}">Admin</strong></span>
+            <a href="/" class="btn-home">🏠 Главная</a>
+            <a href="/profile" class="btn-profile">👤 Профиль</a>
             <a href="/auth/logout" class="btn-logout">Выйти</a>
         </div>
     </div>
@@ -72,6 +79,19 @@
         <div class="stat-card">
             <div class="stat-number" th:text="${#lists.size(universities)}">0</div>
             <div class="stat-label">🏛 Университетов</div>
+        </div>
+    </div>
+
+    <!-- ── БЫСТРЫЕ ССЫЛКИ ── -->
+    <div class="section" style="padding: 20px 28px;">
+        <div class="section-header" style="margin-bottom: 14px;">
+            <h2>⚡ Быстрые действия</h2>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="/admin/users" class="btn-add" style="background: linear-gradient(135deg, #4CAF50, #43a047);">👥 Пользователи</a>
+            <a href="/admin/professors/monitor" class="btn-add" style="background: linear-gradient(135deg, #2196F3, #1976D2);">📊 Мониторинг</a>
+            <a href="/admin/statistics" class="btn-add" style="background: linear-gradient(135deg, #ff9800, #ef6c00);">📈 Статистика</a>
+            <a href="/admin/professors/register-all" class="btn-add" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);" onclick="return confirm('Создать аккаунты для всех профессоров?')">🔄 Регистрация профессоров</a>
         </div>
     </div>
 

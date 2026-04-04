@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Студенты курса</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.1em; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .course-info { color: #666; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9ff; padding: 12px; text-align: left; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.85em; border-bottom: 2px solid #e8ecff; }
+        td { padding: 12px; border-bottom: 1px solid #f0f0f0; color: #333; }
+        tr:hover td { background: #fafbff; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 0.85em; display: inline-block; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #4CAF50; color: white; }
+        .btn-chat { background: #2196F3; color: white; }
+        .student-stats { display: flex; gap: 8px; font-size: 0.9em; }
+        .badge { background: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/professor/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <div class="card">
+        <h1>👥 Студенты курса</h1>
+        <div class="course-info">
+            <strong th:text="${course.title}">Название курса</strong> •
+            <span th:text="${course.department}">Кафедра</span> •
+            <span th:text="${course.semester}">Семестр</span>
+        </div>
+
+        <div th:if="${not #lists.isEmpty(enrollments)}">
+            <p style="margin-bottom: 20px;">
+                <strong>Всего студентов:</strong> <span th:text="${#lists.size(enrollments)}">0</span>
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Имя студента</th>
+                        <th>Email</th>
+                        <th>Дата записи</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="enrollment, iterStat : ${enrollments}">
+                        <td th:text="${iterStat.count}">1</td>
+                        <td>
+                            <strong th:text="${enrollment.student.name}">Имя студента</strong>
+                        </td>
+                        <td th:text="${enrollment.student.email}">email@example.com</td>
+                        <td th:text="${#temporals.format(enrollment.enrollmentDate, 'dd.MM.yyyy')}">01.01.2024</td>
+                        <td>
+                            <span class="badge" th:text="${enrollment.status}">ACTIVE</span>
+                        </td>
+                        <td>
+                            <form th:action="@{/professor/courses/{courseId}/students/{studentId}/grade(courseId=${course.id}, studentId=${enrollment.student.id})}"
+                                  method="post" style="display: inline-flex; gap: 4px; align-items: center;">
+                                <input type="text" name="letterGrade" placeholder="A" required
+                                       style="width: 45px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;" />
+                                <input type="number" name="numericGrade" placeholder="95" step="0.1" min="0" max="100" required
+                                       style="width: 65px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;" />
+                                <button type="submit" class="btn btn-success">✅ Оценить</button>
+                            </form>
+                            <a th:href="@{/professor/messages/{id}(id=${enrollment.student.id})}" class="btn btn-chat" style="margin-left: 4px;">
+                                💬 Чат
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${#lists.isEmpty(enrollments)}" class="empty">
+            <p>На этот курс пока никто не записался</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

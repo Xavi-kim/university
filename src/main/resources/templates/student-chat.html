@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои оценки</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/student/dashboard" class="logo">🎓 University System</a>
+            <div class="nav-links">
+                <span class="user-name" th:text="${userName}">Студент</span>
+                <a href="/student/dashboard">Панель</a>
+                <a href="/student/catalog">Каталог</a>
+                <a href="/student/my-courses">Мои курсы</a>
+                <a href="/student/grades" class="active">Оценки</a>
+                <a href="/student/chat">Чат</a>
+                <a href="/auth/logout">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>💬 Чат с преподавателями</h1>
+
+        <div class="card">
+            <h2>Мои преподаватели</h2>
+
+            <div th:if="${professors != null && !professors.isEmpty()}">
+                <div class="professors-list">
+                    <div class="professor-card" th:each="professor : ${professors}">
+                        <div class="professor-info">
+                            <div class="professor-avatar">
+                                <span th:text="${professor.name.substring(0,1)}">A</span>
+                            </div>
+                            <div>
+                                <h3 th:text="${professor.name}">Имя профессора</h3>
+                                <p th:text="${professor.department}">Кафедра</p>
+                                <p class="text-muted" th:text="${professor.email}">email</p>
+                            </div>
+                        </div>
+                        <a th:href="@{/student/messages/{id}(id=${professor.id})}"
+                           class="btn btn-primary">
+                            💬 Написать
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${professors == null || professors.isEmpty()}" class="empty-state">
+                <p>👨‍🏫 У вас пока нет преподавателей</p>
+                <p class="text-muted">Запишитесь на курсы, чтобы общаться с преподавателями</p>
+                <a href="/student/catalog" class="btn btn-primary">Просмотреть каталог</a>
+            </div>
+        </div>
+
+        <!-- Инструкции -->
+        <div class="card info-card">
+            <h3>💡 Как пользоваться чатом</h3>
+            <ul>
+                <li>Нажмите "Написать" рядом с именем преподавателя</li>
+                <li>Введите ваше сообщение в текстовое поле</li>
+                <li>Нажмите "Отправить" или Enter</li>
+                <li>Ваши сообщения отображаются справа, ответы преподавателя - слева</li>
+                <li>Вы можете задавать вопросы по курсу, домашним заданиям или оценкам</li>
+            </ul>
+        </div>
+    </div>
+
+    <style>
+        .professors-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .professor-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .professor-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .professor-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .professor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .professor-card h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+
+        .professor-card p {
+            margin: 3px 0;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-card h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .info-card ul {
+            list-style-position: inside;
+            color: #555;
+        }
+
+        .info-card li {
+            margin: 10px 0;
+            padding-left: 10px;
+        }
+
+        .text-muted {
+            color: #95a5a6;
+            font-size: 14px;
+        }
+    </style>
+</body>
+</html>
+

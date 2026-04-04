@@ -23,6 +23,28 @@ public class UserController {
     private UserService userService;
 
     /**
+     * GET: Поиск пользователей по имени или email (для автодополнения)
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<java.util.Map<String, Object>>> searchUsers(@RequestParam String q) {
+        List<User> all = userService.getAllUsers();
+        String query = q.toLowerCase();
+        List<java.util.Map<String, Object>> result = all.stream()
+            .filter(u -> u.getName().toLowerCase().contains(query) || u.getEmail().toLowerCase().contains(query))
+            .limit(10)
+            .map(u -> {
+                java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
+                m.put("id", u.getId());
+                m.put("name", u.getName());
+                m.put("email", u.getEmail());
+                m.put("role", u.getRole());
+                return m;
+            })
+            .toList();
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * GET: Получить всех пользователей
      */
     @GetMapping

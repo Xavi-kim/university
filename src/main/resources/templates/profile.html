@@ -150,6 +150,23 @@
             background: #e0e8ff;
         }
 
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+
+        .navigation {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .alert-success {
             background: #d4edda;
             color: #155724;
@@ -175,6 +192,16 @@
     </nav>
 
     <div class="profile-container">
+        <!-- Navigation -->
+        <div class="navigation">
+            <div>
+                <a th:if="${user.role == 'STUDENT'}" href="/student/dashboard" class="btn btn-back">← Вернуться к панели студента</a>
+                <a th:if="${user.role == 'ADMIN'}" href="/admin/dashboard" class="btn btn-back">← Вернуться к панели админа</a>
+                <a th:if="${user.role == 'PROFESSOR'}" href="/professor/dashboard" class="btn btn-back">← Вернуться к панели преподавателя</a>
+            </div>
+            <a href="/" class="btn btn-primary">🏠 Главная страница</a>
+        </div>
+
         <!-- Success Message -->
         <div th:if="${success}" class="alert-success" th:text="${success}"></div>
 

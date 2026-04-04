@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Проверка работ</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 20px; }
+        .hw-info { background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 24px; }
+        .submission { background: #f8f9ff; padding: 20px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #2196F3; }
+        .submission-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+        .student-name { font-size: 1.1em; font-weight: 600; color: #333; }
+        .submission-meta { color: #666; font-size: 0.9em; margin-bottom: 12px; }
+        .submission-content { background: white; padding: 15px; border-radius: 6px; margin-bottom: 12px; color: #333; white-space: pre-wrap; }
+        .grade-form { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; color: white; }
+        .btn-success { background: #4CAF50; }
+        .badge { padding: 6px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+        .badge-submitted { background: #2196F3; color: white; }
+        .badge-graded { background: #4CAF50; color: white; }
+        .badge-late { background: #ff9800; color: white; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+        .graded-info { background: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/professor/courses/{id}/homework(id=${homework.course.id})}" class="back-link">← Вернуться к заданиям</a>
+
+    <div class="card">
+        <h1>📋 Проверка работ</h1>
+
+        <div class="hw-info">
+            <strong th:text="${homework.title}">Название задания</strong><br>
+            Курс: <span th:text="${homework.course.title}">Курс</span><br>
+            Срок сдачи: <span th:text="${#temporals.format(homework.dueDate, 'dd.MM.yyyy HH:mm')}">Дата</span><br>
+            Макс. баллов: <span th:text="${homework.maxPoints}">100</span>
+        </div>
+
+        <h3 style="margin-bottom: 20px;">
+            Сданные работы: <span th:text="${#lists.size(submissions)}">0</span>
+        </h3>
+
+        <div th:if="${not #lists.isEmpty(submissions)}">
+            <div class="submission" th:each="sub : ${submissions}">
+                <div class="submission-header">
+                    <div>
+                        <div class="student-name" th:text="${sub.student.name}">Имя студента</div>
+                        <div class="submission-meta">
+                            📧 <span th:text="${sub.student.email}">email</span> •
+                            🕐 Сдано: <span th:text="${#temporals.format(sub.submittedAt, 'dd.MM.yyyy HH:mm')}">дата</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-submitted" th:classappend="${sub.status == 'GRADED'} ? 'badge-graded' : (${sub.status == 'LATE'} ? 'badge-late' : '')"
+                          th:text="${sub.status}">SUBMITTED</span>
+                </div>
+
+                <div class="submission-content" th:text="${sub.content}">
+                    Содержимое работы студента...
+                </div>
+
+                <div th:if="${sub.fileUrl != null and !sub.fileUrl.isEmpty()}">
+                    <strong>Файл:</strong> <a th:href="${sub.fileUrl}" target="_blank" th:text="${sub.fileUrl}">ссылка</a>
+                </div>
+
+                <!-- Если уже проверено -->
+                <div th:if="${sub.status == 'GRADED'}" class="graded-info">
+                    <strong>✅ Проверено</strong><br>
+                    Баллы: <strong th:text="${sub.points}">0</strong> из <span th:text="${homework.maxPoints}">100</span><br>
+                    Комментарий: <span th:text="${sub.feedback}">отлично</span><br>
+                    Проверено: <span th:text="${#temporals.format(sub.gradedAt, 'dd.MM.yyyy HH:mm')}">дата</span>
+                </div>
+
+                <!-- Форма оценки -->
+                <div th:unless="${sub.status == 'GRADED'}" class="grade-form">
+                    <h4 style="margin-bottom: 12px;">Оценить работу</h4>
+                    <form th:action="@{/professor/submissions/{id}/grade(id=${sub.id})}" method="post">
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="points">Баллы *</label>
+                                <input type="number" id="points" name="points" th:max="${homework.maxPoints}" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="feedback">Комментарий</label>
+                                <input type="text" id="feedback" name="feedback" placeholder="Отличная работа!">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">✅ Поставить оценку</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(submissions)}" class="empty">
+            <p>Работ пока не сдано</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

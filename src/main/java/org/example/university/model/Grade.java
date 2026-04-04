@@ -125,6 +125,20 @@ public class Grade {
         this.gpaValue = gpaValue;
     }
 
+    /**
+     * Алиас для getGpaValue() для совместимости
+     */
+    public Double getGpa() {
+        return gpaValue;
+    }
+
+    /**
+     * Алиас для setGpaValue() для совместимости
+     */
+    public void setGpa(Double gpa) {
+        this.gpaValue = gpa;
+    }
+
     public String getAssignmentName() {
         return assignmentName;
     }

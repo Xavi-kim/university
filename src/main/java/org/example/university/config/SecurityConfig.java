@@ -33,6 +33,9 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    private CustomAuthenticationFailureHandler failureHandler;
+
     /**
      * BCrypt энкодер для хеширования паролей
      */
@@ -91,6 +94,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // Страницы студента
                         .requestMatchers("/student/**").hasAnyRole("STUDENT", "ADMIN")
+                        // Страницы преподавателя
+                        .requestMatchers("/professor/**").hasAnyRole("PROFESSOR", "ADMIN")
                         // Профиль пользователя (для всех авторизованных)
                         .requestMatchers("/profile/**").authenticated()
                         // Остальные страницы требуют аутентификации
@@ -101,8 +106,8 @@ public class SecurityConfig {
                         .loginProcessingUrl("/auth/login")
                         .usernameParameter("email")  // Используем email вместо username
                         .passwordParameter("password")
-                        .successHandler(successHandler)  // Используем кастомный handler
-                        .failureUrl("/auth/login?error=true")
+                        .successHandler(successHandler)  // Используем кастомный handler для успеха
+                        .failureHandler(failureHandler)  // Используем кастомный handler для ошибок
                         .permitAll()
                 )
                 .logout(logout -> logout

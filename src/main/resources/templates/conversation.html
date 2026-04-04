@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Диалог</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.05em; }
+        .back-link:hover { text-decoration: underline; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 75vh; overflow: hidden; }
+        .chat-header { padding: 20px 24px; border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 14px; }
+        .header-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2em; font-weight: 700; }
+        .header-info h2 { color: #667eea; font-size: 1.1em; margin-bottom: 2px; }
+        .header-info p { color: #999; font-size: 0.85em; }
+        .messages-container { flex: 1; padding: 20px; overflow-y: auto; background: #f8f9ff; display: flex; flex-direction: column; gap: 12px; }
+        .message { display: flex; gap: 10px; align-items: flex-end; }
+        .message.sent { flex-direction: row-reverse; }
+        .msg-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; flex-shrink: 0; }
+        .message.sent .msg-avatar { background: linear-gradient(135deg, #4CAF50, #45a049); }
+        .message-content { max-width: 68%; }
+        .message-bubble { padding: 10px 14px; border-radius: 14px; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.08); word-break: break-word; line-height: 1.5; }
+        .message.sent .message-bubble { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .message-meta { font-size: 0.72em; color: #bbb; margin-top: 4px; padding: 0 4px; }
+        .message.sent .message-meta { text-align: right; }
+        .read-mark { color: #4CAF50; }
+        .empty-chat { text-align: center; padding: 60px 20px; color: #bbb; }
+        .message-input { padding: 16px 20px; border-top: 2px solid #f0f0f0; background: white; }
+        .input-form { display: flex; gap: 10px; align-items: flex-end; }
+        .input-form textarea { flex: 1; padding: 11px 14px; border: 1.5px solid #ddd; border-radius: 10px; resize: none; font-family: inherit; font-size: 0.95em; max-height: 120px; transition: border-color 0.2s; }
+        .input-form textarea:focus { outline: none; border-color: #667eea; }
+        .btn-send { padding: 11px 22px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95em; }
+        .btn-send:hover { opacity: 0.9; }
+        .alert-success { background: #d4edda; color: #155724; padding: 10px 16px; border-left: 4px solid #28a745; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="${backUrl}" class="back-link">← Назад к сообщениям</a>
+
+    <div class="card">
+        <div class="chat-header">
+            <div class="header-avatar" th:text="${#strings.substring(otherUser.name, 0, 1)}">A</div>
+            <div class="header-info">
+                <h2 th:text="${otherUser.name}">Имя собеседника</h2>
+                <p th:text="${otherUser.email + ' · ' + otherUser.role}">email · роль</p>
+            </div>
+        </div>
+
+        <div th:if="${param.sent}" class="alert-success">✅ Сообщение отправлено!</div>
+
+        <div class="messages-container" id="messagesContainer">
+            <div th:if="${#lists.isEmpty(messages)}" class="empty-chat">
+                <p>💬 Сообщений пока нет — напишите первым!</p>
+            </div>
+            <div th:each="msg : ${messages}"
+                 class="message"
+                 th:classappend="${msg.sender.id == currentUserId} ? 'sent' : 'received'">
+                <div class="msg-avatar" th:text="${#strings.substring(msg.sender.name, 0, 1)}">A</div>
+                <div class="message-content">
+                    <div class="message-bubble" th:text="${msg.content}">Текст сообщения</div>
+                    <div class="message-meta">
+                        <span th:text="${#temporals.format(msg.sentAt, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</span>
+                        <span th:if="${msg.sender.id == currentUserId and msg.isRead}" class="read-mark"> ✓✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-input">
+            <form th:action="${sendUrl}" method="post" class="input-form" id="msgForm">
+                <textarea name="content" placeholder="Введите сообщение... (Ctrl+Enter — отправить)" required rows="2"
+                          onkeydown="if(event.ctrlKey && event.key==='Enter') document.getElementById('msgForm').submit()"></textarea>
+                <button type="submit" class="btn-send">📤 Отправить</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function() {
+        const c = document.getElementById('messagesContainer');
+        c.scrollTop = c.scrollHeight;
+    };
+</script>
+</body>
+</html>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 70vh; }
+        .chat-header { padding: 20px; border-bottom: 2px solid #f0f0f0; }
+        .chat-header h2 { color: #667eea; margin-bottom: 5px; }
+        .chat-header p { color: #666; font-size: 0.9em; }
+        .messages-container { flex: 1; padding: 20px; overflow-y: auto; background: #f8f9ff; }
+        .message { margin-bottom: 16px; display: flex; gap: 12px; }
+        .message.sent { flex-direction: row-reverse; }
+        .message-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .message.sent .message-avatar { background: linear-gradient(135deg, #4CAF50, #45a049); }
+        .message-content { max-width: 70%; }
+        .message-bubble { padding: 12px 16px; border-radius: 12px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .message.sent .message-bubble { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .message-meta { font-size: 0.75em; color: #999; margin-top: 4px; }
+        .message.sent .message-meta { text-align: right; color: #ccc; }
+        .message-input { padding: 20px; border-top: 2px solid #f0f0f0; background: white; }
+        .input-form { display: flex; gap: 10px; }
+        .input-form textarea { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; resize: none; font-family: inherit; }
+        .btn-send { padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-send:hover { opacity: 0.9; }
+        .empty-chat { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{${#strings.contains(#authentication.principal.authorities[0].authority, 'PROFESSOR') ? '/professor/dashboard' : '/student/dashboard'}}"
+       class="back-link">← Назад</a>
+
+    <div class="card">
+        <!-- Заголовок -->
+        <div class="chat-header">
+            <h2>💬 Диалог</h2>
+            <p>
+                <span th:if="${professor != null}" th:text="${'С профессором: ' + professor.name}">С пользователем</span>
+                <span th:if="${student != null}" th:text="${'Со студентом: ' + student.name}">С пользователем</span>
+            </p>
+        </div>
+
+        <!-- Сообщения -->
+        <div class="messages-container" id="messagesContainer">
+            <div th:if="${#lists.isEmpty(messages)}" class="empty-chat">
+                <p>Сообщений пока нет. Напишите первым!</p>
+            </div>
+
+            <div th:each="msg : ${messages}">
+                <div class="message" th:classappend="${msg.sender.id == #authentication.principal.id} ? 'sent' : 'received'">
+                    <div class="message-avatar" th:text="${#strings.substring(msg.sender.name, 0, 1)}">A</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div th:text="${msg.content}">Текст сообщения</div>
+                        </div>
+                        <div class="message-meta">
+                            <span th:text="${#temporals.format(msg.sentAt, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</span>
+                            <span th:if="${msg.isRead}" style="color: #4CAF50;"> • Прочитано</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ввод сообщения -->
+        <div class="message-input">
+            <form th:action="${professor != null ? '/student/messages/' + professor.id + '/send' : '/professor/messages/' + student.id + '/send'}"
+                  method="post" class="input-form">
+                <textarea name="content" placeholder="Введите сообщение..." required rows="3"></textarea>
+                <button type="submit" class="btn-send">📤 Отправить</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Автоскролл к последнему сообщению
+window.onload = function() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+};
+</script>
+</body>
+</html>
+

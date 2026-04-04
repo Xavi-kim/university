@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Задания курса</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .course-info { color: #666; margin-bottom: 30px; }
+        .homework-item { background: #f8f9ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea; }
+        .hw-header { margin-bottom: 12px; }
+        .hw-title { font-size: 1.2em; font-weight: 600; color: #333; margin-bottom: 8px; }
+        .hw-meta { color: #666; font-size: 0.9em; margin-bottom: 12px; }
+        .hw-description { color: #555; margin-bottom: 15px; padding: 12px; background: white; border-radius: 6px; }
+        .submit-form { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; margin-top: 12px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+        textarea, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        textarea { min-height: 100px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; color: white; }
+        .btn-primary { background: #667eea; }
+        .btn-success { background: #4CAF50; }
+        .badge { padding: 6px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; display: inline-block; }
+        .badge-pending { background: #ff9800; color: white; }
+        .badge-submitted { background: #2196F3; color: white; }
+        .badge-graded { background: #4CAF50; color: white; }
+        .submitted-info { background: #e3f2fd; padding: 12px; border-radius: 6px; margin-top: 12px; }
+        .graded-info { background: #e8f5e9; padding: 12px; border-radius: 6px; margin-top: 12px; }
+        .deadline-warning { background: #fff3e0; color: #f57c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/student/homework" class="back-link">← Вернуться ко всем заданиям</a>
+
+    <div class="card">
+        <h1>📝 Задания курса</h1>
+        <div class="course-info">
+            <strong th:text="${course.title}">Название курса</strong> •
+            <span th:text="${course.department}">Кафедра</span>
+        </div>
+
+        <div th:if="${not #lists.isEmpty(homeworks)}">
+            <div class="homework-item" th:each="hw : ${homeworks}">
+                <div class="hw-header">
+                    <div class="hw-title" th:text="${hw.title}">Название задания</div>
+                    <div class="hw-meta">
+                        📅 Срок сдачи: <strong th:text="${#temporals.format(hw.dueDate, 'dd.MM.yyyy HH:mm')}">дата</strong> •
+                        💯 Макс. баллов: <span th:text="${hw.maxPoints}">100</span>
+                    </div>
+                </div>
+
+                <!-- Предупреждение о сроке -->
+                <div class="deadline-warning" th:if="${#temporals.createNow().isAfter(hw.dueDate)}">
+                    ⚠️ Срок сдачи истёк! Работа будет принята с опозданием.
+                </div>
+
+                <div class="hw-description" th:if="${hw.description != null and !hw.description.isEmpty()}">
+                    <strong>Описание:</strong><br>
+                    <span th:text="${hw.description}">Описание задания</span>
+                </div>
+
+                <!-- Проверяем, есть ли сдача -->
+                <div th:with="mySubmission=${submissions.?[homework.id == hw.id][0]}">
+
+                    <!-- Если уже сдано -->
+                    <div th:if="${mySubmission != null}">
+                        <span class="badge badge-submitted"
+                              th:classappend="${mySubmission.status == 'GRADED'} ? 'badge-graded' : ''"
+                              th:text="${mySubmission.status}">SUBMITTED</span>
+
+                        <div class="submitted-info">
+                            <strong>✅ Вы сдали задание</strong><br>
+                            Дата сдачи: <span th:text="${#temporals.format(mySubmission.submittedAt, 'dd.MM.yyyy HH:mm')}">дата</span><br>
+                            Ваш ответ: <span th:text="${mySubmission.content}">ответ</span>
+                        </div>
+
+                        <!-- Если проверено -->
+                        <div th:if="${mySubmission.status == 'GRADED'}" class="graded-info">
+                            <strong>🎉 Работа проверена!</strong><br>
+                            Баллы: <strong style="font-size: 1.2em;" th:text="${mySubmission.points}">0</strong> из <span th:text="${hw.maxPoints}">100</span><br>
+                            <span th:if="${mySubmission.feedback != null and !mySubmission.feedback.isEmpty()}">
+                                Комментарий: <em th:text="${mySubmission.feedback}">отлично</em>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Если НЕ сдано - показываем форму -->
+                    <div th:unless="${mySubmission != null}">
+                        <span class="badge badge-pending">Не сдано</span>
+
+                        <div class="submit-form">
+                            <h4 style="margin-bottom: 12px;">✍️ Сдать задание</h4>
+                            <form th:action="@{/student/homework/{id}/submit(id=${hw.id})}" method="post">
+                                <div class="form-group">
+                                    <label for="content">Ваш ответ *</label>
+                                    <textarea id="content" name="content" required placeholder="Введите ваш ответ или решение задания..."></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fileUrl">Ссылка на файл (необязательно)</label>
+                                    <input type="url" id="fileUrl" name="fileUrl" placeholder="https://drive.google.com/...">
+                                </div>
+
+                                <button type="submit" class="btn btn-success">✅ Сдать задание</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(homeworks)}" style="text-align: center; padding: 40px; color: #999;">
+            <p>Для этого курса пока нет заданий</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

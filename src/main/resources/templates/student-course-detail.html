@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${course.title} + ' — Детали курса'">Детали курса</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.05em; }
+        .back-link:hover { text-decoration: underline; }
+        .card { background: white; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.13); padding: 30px; margin-bottom: 20px; }
+        .course-title { color: #667eea; font-size: 1.8em; margin-bottom: 12px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .badge { padding: 5px 14px; border-radius: 20px; font-size: 0.82em; font-weight: 600; }
+        .badge-blue { background: #e3f2fd; color: #1565c0; }
+        .badge-green { background: #e8f5e9; color: #2e7d32; }
+        .badge-purple { background: #f3e5f5; color: #6a1b9a; }
+        .badge-enrolled { background: #4CAF50; color: white; }
+        .section-title { font-size: 1.1em; font-weight: 700; color: #555; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0; }
+        .description { color: #555; line-height: 1.7; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .info-item { display: flex; flex-direction: column; gap: 4px; }
+        .info-label { font-size: 0.82em; color: #999; text-transform: uppercase; font-weight: 600; }
+        .info-value { color: #333; font-weight: 500; }
+        .prof-card { display: flex; gap: 20px; align-items: flex-start; }
+        .prof-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.6em; font-weight: 700; flex-shrink: 0; }
+        .prof-info { flex: 1; }
+        .prof-name { font-size: 1.1em; font-weight: 700; color: #333; margin-bottom: 4px; }
+        .prof-dept { color: #667eea; font-size: 0.9em; margin-bottom: 4px; }
+        .prof-bio { color: #666; font-size: 0.9em; line-height: 1.5; }
+        .prof-email { color: #888; font-size: 0.85em; margin-top: 4px; }
+        .uni-card { display: flex; gap: 16px; align-items: center; }
+        .uni-icon { font-size: 2.5em; }
+        .uni-info .uni-name { font-size: 1.05em; font-weight: 700; color: #333; }
+        .uni-info .uni-meta { color: #888; font-size: 0.88em; margin-top: 4px; }
+        .action-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+        .btn { padding: 11px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em; text-decoration: none; display: inline-block; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.88; }
+        .btn-enroll { background: linear-gradient(135deg, #4CAF50, #43A047); color: white; }
+        .btn-unenroll { background: #ff9800; color: white; }
+        .btn-msg { background: linear-gradient(135deg, #2196F3, #1976D2); color: white; }
+        .btn-back { background: rgba(255,255,255,0.2); color: #667eea; border: 2px solid #667eea; }
+        .homework-list { list-style: none; }
+        .homework-item { padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .hw-title { font-weight: 600; color: #333; }
+        .hw-due { font-size: 0.85em; color: #f44336; }
+        .empty { color: #aaa; text-align: center; padding: 20px; }
+        .enrolled-banner { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-left: 4px solid #4CAF50; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .enrolled-banner span { font-weight: 600; color: #2e7d32; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/student/dashboard" class="back-link">← Назад к панели</a>
+
+    <!-- Баннер записи -->
+    <div th:if="${isEnrolled}" class="enrolled-banner">
+        <span>✅ Вы записаны на этот курс</span>
+    </div>
+
+    <!-- Основная информация -->
+    <div class="card">
+        <h1 class="course-title" th:text="${course.title}">Название курса</h1>
+        <div class="badges">
+            <span class="badge badge-blue" th:if="${course.credits != null}" th:text="${course.credits + ' кредитов'}">5 кредитов</span>
+            <span class="badge badge-purple" th:text="${course.semester}">Семестр</span>
+            <span class="badge badge-blue" th:text="${course.department}">Кафедра</span>
+            <span class="badge badge-green" th:if="${course.maxStudents != null}" th:text="'Мест: ' + ${course.maxStudents}">Мест: 30</span>
+            <span class="badge badge-enrolled" th:if="${isEnrolled}">✓ Записан</span>
+        </div>
+
+        <div class="section-title">📋 Описание курса</div>
+        <p class="description" th:text="${course.description}">Описание курса...</p>
+
+        <div class="info-grid" style="margin-top: 20px;" th:if="${course.level != null or course.category != null}">
+            <div class="info-item" th:if="${course.level != null}">
+                <span class="info-label">Уровень</span>
+                <span class="info-value" th:text="${course.level}">BEGINNER</span>
+            </div>
+            <div class="info-item" th:if="${course.category != null}">
+                <span class="info-label">Категория</span>
+                <span class="info-value" th:text="${course.category}">Программирование</span>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-bar" style="margin-top: 24px;">
+            <form th:if="${!isEnrolled}" th:action="@{/student/enroll/{id}(id=${course.id})}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-enroll">✅ Записаться на курс</button>
+            </form>
+            <form th:if="${isEnrolled and enrollment != null}" th:action="@{/student/unenroll/{id}(id=${enrollment.id})}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-unenroll" onclick="return confirm('Отписаться?')">Отписаться</button>
+            </form>
+            <a th:if="${course.professor != null and profUserId != null}"
+               th:href="@{/student/messages/{id}(id=${profUserId})}"
+               class="btn btn-msg">💬 Написать преподавателю</a>
+            <a href="/student/dashboard" class="btn btn-back">← Назад</a>
+        </div>
+    </div>
+
+    <!-- Преподаватель -->
+    <div class="card" th:if="${course.professor != null}">
+        <div class="section-title">👨‍🏫 Преподаватель</div>
+        <div class="prof-card">
+            <div class="prof-avatar" th:text="${#strings.substring(course.professor.name, 0, 1)}">А</div>
+            <div class="prof-info">
+                <div class="prof-name" th:text="${course.professor.name}">Имя профессора</div>
+                <div class="prof-dept" th:text="${course.professor.department}">Кафедра</div>
+                <div class="prof-email" th:text="${course.professor.email}">email@kaznu.kz</div>
+                <div class="prof-bio" th:if="${course.professor.bio != null}" th:text="${course.professor.bio}">Биография...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Университет -->
+    <div class="card" th:if="${course.university != null}">
+        <div class="section-title">🏛️ Университет</div>
+        <div class="uni-card">
+            <div class="uni-icon">🏛️</div>
+            <div class="uni-info">
+                <div class="uni-name" th:text="${course.university.name}">Название университета</div>
+                <div class="uni-meta">
+                    <span th:text="${course.university.city}">Город</span>,
+                    <span th:text="${course.university.country}">Страна</span>
+                    <span th:if="${course.university.address != null}">
+                        • <span th:text="${course.university.address}">Адрес</span>
+                    </span>
+                </div>
+                <div class="uni-meta" th:if="${course.university.description != null}"
+                     th:text="${course.university.description}">Описание</div>
+                <div class="uni-meta" th:if="${course.university.website != null}">
+                    <a th:href="${course.university.website}" target="_blank"
+                       th:text="${course.university.website}">Сайт</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Домашние задания -->
+    <div class="card" th:if="${!#lists.isEmpty(homeworks)}">
+        <div class="section-title">📝 Домашние задания курса</div>
+        <ul class="homework-list">
+            <li class="homework-item" th:each="hw : ${homeworks}">
+                <div>
+                    <div class="hw-title" th:text="${hw.title}">Название задания</div>
+                    <div style="font-size:0.85em; color:#666; margin-top:3px;" th:text="${hw.description}">Описание</div>
+                </div>
+                <div class="hw-due" th:text="'До: ' + ${#temporals.format(hw.dueDate, 'dd.MM.yyyy')}">До: 01.01.2026</div>
+            </li>
+        </ul>
+    </div>
+    <div class="card" th:if="${#lists.isEmpty(homeworks)}">
+        <div class="section-title">📝 Домашние задания</div>
+        <div class="empty">Заданий пока нет</div>
+    </div>
+</div>
+</body>
+</html>

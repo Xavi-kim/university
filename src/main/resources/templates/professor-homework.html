@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Домашние задания</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.1em; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .course-info { color: #666; margin-bottom: 24px; }
+        .create-form { background: #f8f9ff; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; color: #333; font-weight: 600; margin-bottom: 6px; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        textarea { min-height: 80px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #4CAF50; color: white; }
+        .homework-list { display: grid; gap: 16px; }
+        .homework-item { background: #f8f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; }
+        .homework-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+        .homework-title { font-size: 1.1em; font-weight: 600; color: #333; }
+        .homework-meta { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .homework-description { color: #555; margin-bottom: 12px; }
+        .homework-actions { display: flex; gap: 8px; }
+        .btn-small { padding: 8px 16px; font-size: 0.85em; }
+        .badge { background: #4CAF50; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8em; }
+        .badge-warning { background: #ff9800; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/professor/dashboard" class="back-link">← Вернуться к панели</a>
+
+    <div class="card">
+        <h1>📝 Домашние задания</h1>
+        <div class="course-info">
+            <strong th:text="${course.title}">Название курса</strong> •
+            <span th:text="${course.department}">Кафедра</span>
+        </div>
+
+        <!-- Форма создания ДЗ -->
+        <div class="create-form">
+            <h3 style="margin-bottom: 15px;">➕ Создать новое задание</h3>
+            <form th:action="@{/professor/courses/{id}/homework/create(id=${course.id})}" method="post">
+                <div class="form-group">
+                    <label for="title">Название *</label>
+                    <input type="text" id="title" name="title" required placeholder="Например: Лабораторная работа №1">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea id="description" name="description" placeholder="Подробное описание задания"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="dueDate">Срок сдачи *</label>
+                        <input type="datetime-local" id="dueDate" name="dueDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxPoints">Максимум баллов</label>
+                        <input type="number" id="maxPoints" name="maxPoints" value="100" min="1">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">✅ Создать задание</button>
+            </form>
+        </div>
+
+        <!-- Список заданий -->
+        <h3 style="margin-bottom: 20px;">Созданные задания</h3>
+
+        <div class="homework-list" th:if="${not #lists.isEmpty(homeworks)}">
+            <div class="homework-item" th:each="hw : ${homeworks}">
+                <div class="homework-header">
+                    <div>
+                        <div class="homework-title" th:text="${hw.title}">Название задания</div>
+                        <div class="homework-meta">
+                            📅 Срок: <span th:text="${#temporals.format(hw.dueDate, 'dd.MM.yyyy HH:mm')}">01.01.2024 23:59</span> •
+                            💯 Макс. баллов: <span th:text="${hw.maxPoints}">100</span>
+                        </div>
+                    </div>
+                    <span class="badge" th:text="${#lists.size(hw.submissions)} + ' сдано'">0 сдано</span>
+                </div>
+
+                <div class="homework-description" th:text="${hw.description}">Описание задания</div>
+
+                <div class="homework-actions">
+                    <a th:href="@{/professor/homework/{id}/submissions(id=${hw.id})}" class="btn btn-small btn-success">
+                        📋 Проверить работы (<span th:text="${#lists.size(hw.submissions)}">0</span>)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(homeworks)}" class="empty">
+            <p>Заданий пока нет. Создайте первое!</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

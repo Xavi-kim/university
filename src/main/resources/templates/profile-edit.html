@@ -127,6 +127,11 @@
             <p>Обновите свою информацию</p>
         </div>
 
+        <!-- Back to Profile Button -->
+        <a href="/profile" style="display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none;">
+            ← Вернуться к профилю
+        </a>
+
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
         <form method="post" action="/profile/update">

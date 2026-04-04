@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>О профессоре</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .profile-header { display: flex; align-items: center; gap: 30px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 3em; font-weight: bold; }
+        .profile-info h1 { color: #667eea; margin-bottom: 10px; }
+        .profile-info p { color: #666; margin: 5px 0; }
+        .info-section { margin-bottom: 30px; }
+        .info-section h3 { color: #333; margin-bottom: 15px; }
+        .info-item { background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .info-item label { color: #666; font-size: 0.9em; display: block; margin-bottom: 5px; }
+        .info-item value { color: #333; font-size: 1.1em; }
+        .courses-list { display: grid; gap: 15px; }
+        .course-item { background: #f8f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; }
+        .course-item h4 { color: #333; margin-bottom: 8px; }
+        .course-item p { color: #666; font-size: 0.9em; }
+        .badge { background: #4CAF50; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; display: inline-block; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/student/professors" class="back-link">← Вернуться к списку</a>
+
+    <div class="card">
+        <!-- Профиль -->
+        <div class="profile-header">
+            <div class="avatar" th:text="${#strings.substring(professor.name, 0, 1)}">П</div>
+            <div class="profile-info">
+                <h1 th:text="${professor.name}">Имя профессора</h1>
+                <p><strong>Кафедра:</strong> <span th:text="${professor.department}">Кафедра</span></p>
+                <p><strong>Email:</strong> <span th:text="${professor.email}">email@example.com</span></p>
+                <p th:if="${professor.university != null}">
+                    <strong>Университет:</strong> <span th:text="${professor.university.name}">Университет</span>
+                </p>
+                <span class="badge">Активный профессор</span>
+            </div>
+        </div>
+
+        <!-- О профессоре -->
+        <div class="info-section" th:if="${professor.bio != null and !professor.bio.isEmpty()}">
+            <h3>💼 О профессоре</h3>
+            <div class="info-item">
+                <p th:text="${professor.bio}">Биография</p>
+            </div>
+        </div>
+
+        <!-- Курсы -->
+        <div class="info-section">
+            <h3>📚 Курсы профессора (<span th:text="${#lists.size(courses)}">0</span>)</h3>
+
+            <div class="courses-list" th:if="${not #lists.isEmpty(courses)}">
+                <div class="course-item" th:each="course : ${courses}">
+                    <h4 th:text="${course.title}">Название курса</h4>
+                    <p th:text="${course.description}">Описание курса</p>
+                    <p style="margin-top: 10px;">
+                        <strong>Кафедра:</strong> <span th:text="${course.department}">Кафедра</span> •
+                        <strong>Семестр:</strong> <span th:text="${course.semester}">Семестр</span> •
+                        <strong>Кредиты:</strong> <span th:text="${course.credits}">3</span>
+                    </p>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(courses)}" style="text-align: center; padding: 40px; color: #999;">
+                <p>Профессор пока не ведёт курсы</p>
+            </div>
+        </div>
+
+        <!-- Контакты -->
+        <div class="info-section">
+            <h3>📧 Связаться с профессором</h3>
+            <div class="info-item">
+                <p>Вы можете отправить сообщение профессору через систему сообщений</p>
+                <a th:href="@{/student/messages/{id}(id=${professor.id})}"
+                   style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px;">
+                    💬 Написать сообщение
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

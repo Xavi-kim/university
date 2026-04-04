@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать курс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; margin-bottom: 24px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; color: #333; font-weight: 600; margin-bottom: 8px; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
+        textarea { min-height: 120px; resize: vertical; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; transition: transform 0.2s; margin-right: 10px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/professor/courses" class="back-link">← Вернуться к списку курсов</a>
+
+    <div class="card">
+        <h1>✏️ Редактировать курс</h1>
+
+        <form th:action="@{/professor/courses/{id}/update(id=${course.id})}" method="post" th:object="${course}">
+            <div class="form-group">
+                <label for="title">Название курса *</label>
+                <input type="text" id="title" name="title" th:value="*{title}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Описание</label>
+                <textarea id="description" name="description" th:text="*{description}"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="department">Кафедра *</label>
+                <input type="text" id="department" name="department" th:value="*{department}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="semester">Семестр *</label>
+                <select id="semester" name="semester" required>
+                    <option value="">Выберите семестр</option>
+                    <option value="Осень 2024" th:selected="*{semester == 'Осень 2024'}">Осень 2024</option>
+                    <option value="Весна 2025" th:selected="*{semester == 'Весна 2025'}">Весна 2025</option>
+                    <option value="Осень 2025" th:selected="*{semester == 'Осень 2025'}">Осень 2025</option>
+                    <option value="Весна 2026" th:selected="*{semester == 'Весна 2026'}">Весна 2026</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="credits">Кредиты</label>
+                <input type="number" id="credits" name="credits" th:value="*{credits}" min="1" max="10">
+            </div>
+
+            <div class="form-group">
+                <label for="maxStudents">Максимум студентов</label>
+                <input type="number" id="maxStudents" name="maxStudents" th:value="*{maxStudents}" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Категория</label>
+                <select id="category" name="category">
+                    <option value="">Выберите категорию</option>
+                    <option value="Программирование" th:selected="*{category == 'Программирование'}">Программирование</option>
+                    <option value="Математика" th:selected="*{category == 'Математика'}">Математика</option>
+                    <option value="Физика" th:selected="*{category == 'Физика'}">Физика</option>
+                    <option value="Экономика" th:selected="*{category == 'Экономика'}">Экономика</option>
+                    <option value="Языки" th:selected="*{category == 'Языки'}">Языки</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="level">Уровень</label>
+                <select id="level" name="level">
+                    <option value="">Выберите уровень</option>
+                    <option value="Beginner" th:selected="*{level == 'Beginner'}">Начальный</option>
+                    <option value="Intermediate" th:selected="*{level == 'Intermediate'}">Средний</option>
+                    <option value="Advanced" th:selected="*{level == 'Advanced'}">Продвинутый</option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary">✅ Сохранить изменения</button>
+                <a href="/professor/courses" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+

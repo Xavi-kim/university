@@ -68,6 +68,13 @@ public class GradeService {
     }
 
     /**
+     * Получить оценку по ID записи на курс
+     */
+    public Optional<Grade> getGradeByEnrollment(Long enrollmentId) {
+        return gradeRepository.findById(enrollmentId);
+    }
+
+    /**
      * Рассчитать средний GPA студента
      */
     public Double calculateStudentGPA(Long studentId) {

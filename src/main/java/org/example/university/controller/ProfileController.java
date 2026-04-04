@@ -3,6 +3,7 @@ package org.example.university.controller;
 import org.example.university.model.User;
 import org.example.university.service.GradeService;
 import org.example.university.service.UserService;
+import org.example.university.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,9 @@ public class ProfileController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired(required = false)
+    private EmailService emailService;
 
     /**
      * Страница профиля
@@ -164,8 +168,12 @@ public class ProfileController {
         user.setPassword(passwordEncoder.encode(newPassword));
         userService.saveUser(user);
 
+        // Отправляем уведомление на email (если сервис доступен)
+        if (emailService != null) {
+            emailService.sendPasswordChangeEmail(user);
+        }
+
         model.addAttribute("success", "Пароль успешно изменён!");
         return "redirect:/profile";
     }
 }
-

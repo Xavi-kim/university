@@ -29,7 +29,7 @@ public class User {
     private String email;
 
     @NotBlank(message = "Пароль не должен быть пусто")
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)  // BCrypt хеш = 60 символов, устанавливаем с запасом
     @JsonIgnore
     private String password;
 
@@ -107,6 +107,11 @@ public class User {
     }
 
     public boolean isEnabled() {
+        return enabled;
+    }
+
+    // Альтернативный getter для совместимости
+    public Boolean getEnabled() {
         return enabled;
     }
 

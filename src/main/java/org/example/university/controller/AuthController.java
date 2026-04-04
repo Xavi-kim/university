@@ -2,6 +2,7 @@ package org.example.university.controller;
 
 import org.example.university.model.User;
 import org.example.university.service.UserService;
+import org.example.university.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,9 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired(required = false)
+    private EmailService emailService;
 
     /**
      * Страница входа
@@ -96,6 +100,11 @@ public class AuthController {
 
         user = userService.saveUser(user);
 
+        // Отправляем приветственное письмо (если сервис доступен)
+        if (emailService != null) {
+            emailService.sendRegistrationEmail(user);
+        }
+
         // Автоматический вход
         session.setAttribute("userId", user.getId());
         session.setAttribute("userEmail", user.getEmail());
@@ -114,4 +123,3 @@ public class AuthController {
         return "redirect:/auth/login";
     }
 }
-

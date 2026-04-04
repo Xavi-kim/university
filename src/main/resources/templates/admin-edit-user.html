@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать пользователя</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; margin-bottom: 24px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; color: #333; font-weight: 600; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
+        textarea { min-height: 100px; resize: vertical; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; margin-right: 10px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .user-info { background: #f8f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/admin/users" class="back-link">← Вернуться к пользователям</a>
+
+    <div class="card">
+        <h1>✏️ Редактировать пользователя</h1>
+
+        <div class="user-info">
+            <strong>ID:</strong> <span th:text="${user.id}">1</span> |
+            <strong>Дата регистрации:</strong> <span th:text="${#temporals.format(user.registrationDate, 'dd.MM.yyyy HH:mm')}">01.01.2024</span>
+        </div>
+
+        <form th:action="@{/admin/users/{id}/update(id=${user.id})}" method="post">
+            <div class="form-group">
+                <label for="name">Имя *</label>
+                <input type="text" id="name" name="name" th:value="${user.name}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" th:value="${user.email}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Роль *</label>
+                <select id="role" name="role" required>
+                    <option value="STUDENT" th:selected="${user.role == 'STUDENT'}">STUDENT - Студент</option>
+                    <option value="PROFESSOR" th:selected="${user.role == 'PROFESSOR'}">PROFESSOR - Профессор</option>
+                    <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">ADMIN - Администратор</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="phoneNumber">Телефон</label>
+                <input type="tel" id="phoneNumber" name="phoneNumber" th:value="${user.phoneNumber}" placeholder="+7 (___) ___-__-__">
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Биография</label>
+                <textarea id="bio" name="bio" th:text="${user.bio}" placeholder="Краткая информация о пользователе"></textarea>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary">✅ Сохранить изменения</button>
+                <a href="/admin/users" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+

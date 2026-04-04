@@ -1,6 +1,8 @@
 package org.example.university.service;
 
 import org.example.university.model.Course;
+import org.example.university.model.Professor;
+import org.example.university.model.University;
 import org.example.university.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,9 @@ public class CourseService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private UniversityService universityService;
 
     /**
      * Получить все активные курсы
@@ -85,5 +90,17 @@ public class CourseService {
         }
         return null;
     }
-}
 
+    // Получить курсы по объекту Professor
+    public List<Course> getCoursesByProfessor(Professor professor) {
+        if (professor == null) {
+            return List.of();
+        }
+        return courseRepository.findByProfessorId(professor.getId());
+    }
+
+    // Получить все университеты
+    public List<University> getAllUniversities() {
+        return universityService.getAllUniversities();
+    }
+}
