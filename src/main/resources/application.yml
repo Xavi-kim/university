@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    # dev-профиль отключён по умолчанию, используется реальный SMTP-сервис (SmtpEmailService)
+    # active: dev
   application:
     name: University Management System
 
@@ -10,12 +13,16 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create-drop  # Hibernate создаёт таблицы при старте, удаляет при остановке
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         default_schema: public
+
+  # Flyway ОТКЛЮЧЁН — используем Hibernate DDL + DataInitializer
+  flyway:
+    enabled: false
 
   jackson:
     serialization:
@@ -23,8 +30,24 @@ spring:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
+  mail:
+    # ✅ Реальные настройки SMTP для отправки email (Gmail через пароль приложения)
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:sagdatovarsen478@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:your_app_password_here}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
   port: 8080
+  servlet:
+    session:
+      timeout: 30m  # Тайм-аут сессии 30 минут
 
 logging:
   level:
