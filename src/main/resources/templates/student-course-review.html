@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Отзыв — ' + ${course.title}">Отзыв на курс</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: white; text-decoration: none; font-size: 1.05em; }
+        .back-link:hover { text-decoration: underline; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); padding: 28px; }
+        h1 { color: #667eea; font-size: 1.5em; margin-bottom: 8px; }
+        .sub { color: #777; margin-bottom: 20px; }
+        .section-title { font-size: 1.05em; font-weight: 700; color: #555; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0; }
+        .form-group { margin-bottom: 18px; }
+        label { display:block; font-weight: 600; color: #444; margin-bottom: 8px; }
+        textarea { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 10px; resize: vertical; min-height: 120px; font-family: inherit; font-size: 0.95em; }
+        textarea:focus { outline: none; border-color: #667eea; }
+
+        .rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; }
+        .rating input { display: none; }
+        .rating label { font-size: 1.8em; cursor: pointer; color: #ddd; margin: 0; line-height: 1; }
+        .rating input:checked ~ label { color: #ffb300; }
+        .rating label:hover,
+        .rating label:hover ~ label { color: #ffd54f; }
+
+        .actions { display:flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+        .btn { padding: 11px 22px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.95em; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-secondary { background: #f3f4ff; color: #667eea; border: 2px solid #667eea; }
+        .btn:hover { opacity: 0.92; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/student/courses/{id}(id=${course.id})}" class="back-link">← Назад к курсу</a>
+
+    <div class="card">
+        <h1>⭐ Отзыв на курс</h1>
+        <div class="sub">
+            Курс: <strong th:text="${course.title}">Название</strong>
+        </div>
+
+        <form th:action="@{/student/courses/{id}/review(id=${course.id})}" method="post">
+            <div class="section-title">Оценка</div>
+            <div class="form-group">
+                <label>Выберите рейтинг:</label>
+                <div class="rating">
+                    <input type="radio" id="star5" name="rating" value="5" required>
+                    <label for="star5" title="5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4">
+                    <label for="star4" title="4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3" title="3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2">
+                    <label for="star2" title="2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1">
+                    <label for="star1" title="1">★</label>
+                </div>
+            </div>
+
+            <div class="section-title">Комментарий</div>
+            <div class="form-group">
+                <label for="comment">Ваш отзыв (необязательно)</label>
+                <textarea id="comment" name="comment" placeholder="Напишите пару слов о курсе..."></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">✅ Отправить отзыв</button>
+                <a th:href="@{/student/courses/{id}(id=${course.id})}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+

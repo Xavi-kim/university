@@ -48,11 +48,25 @@
         .empty { color: #aaa; text-align: center; padding: 20px; }
         .enrolled-banner { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-left: 4px solid #4CAF50; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         .enrolled-banner span { font-weight: 600; color: #2e7d32; }
+        .review-summary { display:flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .rating-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #fff8e1; color: #8d6e00; font-weight: 800; }
+        .rating-badge .stars { color: #ffb300; letter-spacing: 1px; }
+        .review-item { border: 1px solid #f0f0f0; border-radius: 10px; padding: 14px 16px; background: #fafbff; margin-bottom: 10px; }
+        .review-head { display:flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .review-author { font-weight: 700; color: #333; }
+        .review-meta { font-size: 0.82em; color: #999; }
+        .review-comment { margin-top: 8px; color: #555; line-height: 1.6; }
+        .btn-review { background: linear-gradient(135deg, #ff9800, #ef6c00); color: white; }
+        .review-note { padding: 12px 16px; border-radius: 10px; background: #e8f5e9; border-left: 4px solid #4CAF50; color: #2e7d32; font-weight: 600; }
     </style>
 </head>
 <body>
 <div class="container">
     <a href="/student/dashboard" class="back-link">← Назад к панели</a>
+
+    <div th:if="${param.reviewed}" class="card">
+        <div class="review-note">✅ Спасибо! Отзыв сохранён.</div>
+    </div>
 
     <!-- Баннер записи -->
     <div th:if="${isEnrolled}" class="enrolled-banner">
@@ -153,6 +167,47 @@
     <div class="card" th:if="${#lists.isEmpty(homeworks)}">
         <div class="section-title">📝 Домашние задания</div>
         <div class="empty">Заданий пока нет</div>
+    </div>
+
+    <!-- ⭐ Оценка курса и отзывы -->
+    <div class="card">
+        <div class="section-title">⭐ Оценка курса</div>
+
+        <div class="review-summary">
+            <div class="rating-badge">
+                <span class="stars">★</span>
+                <span th:text="${averageRating != null ? #numbers.formatDecimal(averageRating, 1, 1) : '—'}">—</span>
+                <span style="font-weight:600; color:#8d6e00;" th:text="${averageRating != null ? '/ 5' : 'Нет оценок'}">/ 5</span>
+            </div>
+
+            <div class="action-bar" style="margin:0;">
+                <a th:if="${isEnrolled and !hasReviewed}"
+                   th:href="@{/student/courses/{id}/review(id=${course.id})}"
+                   class="btn btn-review">✍️ Оставить отзыв</a>
+                <div th:if="${isEnrolled and hasReviewed}" class="review-note">Вы уже оставили отзыв</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px;" th:if="${!#lists.isEmpty(latestReviews)}">
+            <div class="section-title" style="border-bottom:none; padding-bottom:0; margin-bottom: 12px;">📝 Последние отзывы</div>
+
+            <div class="review-item" th:each="r : ${latestReviews}">
+                <div class="review-head">
+                    <div>
+                        <span class="review-author" th:text="${r.student != null ? r.student.name : 'Студент'}">Студент</span>
+                        <span class="review-meta" th:text="' • ' + ${#temporals.format(r.createdAt, 'dd.MM.yyyy HH:mm')}"> • 01.01.2026</span>
+                    </div>
+                    <div class="rating-badge" style="padding: 6px 12px;">
+                        <span class="stars">★</span>
+                        <span th:text="${r.rating}">5</span>
+                    </div>
+                </div>
+                <div class="review-comment" th:if="${r.comment != null}" th:text="${r.comment}">Комментарий</div>
+                <div class="review-comment" th:if="${r.comment == null}" style="color:#999;">(без комментария)</div>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${#lists.isEmpty(latestReviews)}">Пока нет отзывов. Будьте первым!</div>
     </div>
 </div>
 </body>

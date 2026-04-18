@@ -48,6 +48,8 @@
         <div style="display:flex; align-items:center; gap:16px;">
             <span>👋 <strong th:text="${userName}">Admin</strong></span>
             <a href="/" class="btn-home">🏠 Главная</a>
+            <a href="/admin/users" class="btn-profile">👥 Пользователи</a>
+            <a href="/admin/statistics" class="btn-profile">📈 Статистика</a>
             <a href="/profile" class="btn-profile">👤 Профиль</a>
             <a href="/auth/logout" class="btn-logout">Выйти</a>
         </div>
@@ -91,7 +93,10 @@
             <a href="/admin/users" class="btn-add" style="background: linear-gradient(135deg, #4CAF50, #43a047);">👥 Пользователи</a>
             <a href="/admin/professors/monitor" class="btn-add" style="background: linear-gradient(135deg, #2196F3, #1976D2);">📊 Мониторинг</a>
             <a href="/admin/statistics" class="btn-add" style="background: linear-gradient(135deg, #ff9800, #ef6c00);">📈 Статистика</a>
-            <a href="/admin/professors/register-all" class="btn-add" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);" onclick="return confirm('Создать аккаунты для всех профессоров?')">🔄 Регистрация профессоров</a>
+
+            <form action="/admin/professors/register-all" method="post" style="display:inline; margin:0;" onsubmit="return confirm('Создать аккаунты для всех профессоров?')">
+                <button type="submit" class="btn-add" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);">🔄 Регистрация профессоров</button>
+            </form>
         </div>
     </div>
 

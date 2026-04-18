@@ -17,15 +17,13 @@
             <li><a href="/">Главная</a></li>
             <li><a href="/catalog">📚 Каталог</a></li>
 
-            <!-- Показывать только для неавторизованных -->
             <li sec:authorize="!isAuthenticated()"><a href="/auth/login">🔐 Вход</a></li>
             <li sec:authorize="!isAuthenticated()"><a href="/auth/register">📝 Регистрация</a></li>
 
-            <!-- Показывать только для авторизованных -->
             <li sec:authorize="isAuthenticated()"><a href="/profile">👤 Профиль</a></li>
-            <li sec:authorize="hasRole('STUDENT')"><a href="/student/dashboard">📖 Мои курсы</a></li>
-            <li sec:authorize="hasRole('PROFESSOR')"><a href="/professor/dashboard">👨‍🏫 Мои занятия</a></li>
-            <li sec:authorize="hasRole('ADMIN')"><a href="/admin/dashboard">⚙️ Админ-панель</a></li>
+            <li sec:authorize="isAuthenticated() and hasRole('STUDENT')"><a href="/student/dashboard">📖 Мои курсы</a></li>
+            <li sec:authorize="isAuthenticated() and hasRole('PROFESSOR')"><a href="/professor/dashboard">👨‍🏫 Мои занятия</a></li>
+            <li sec:authorize="isAuthenticated() and hasRole('ADMIN')"><a href="/admin/dashboard">⚙️ Админ-панель</a></li>
             <li sec:authorize="isAuthenticated()"><a href="/auth/logout">🚪 Выход</a></li>
         </ul>
     </div>

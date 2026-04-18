@@ -1,5 +1,6 @@
 package org.example.university.config;
 
+import org.example.university.builder.UserBuilder;
 import org.example.university.model.Course;
 import org.example.university.model.Professor;
 import org.example.university.model.University;
@@ -40,206 +41,278 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Если в базе уже есть пользователи — считаем, что БД не пустая, инициализацию пропускаем.
+        if (userRepository.count() > 0) {
+            System.out.println("ℹ️ База уже содержит данные, инициализация пропущена");
+            return;
+        }
+
         System.out.println("🚀 Начинаем инициализацию базы данных...");
 
-        // Очистка в правильном порядке (сначала зависимые таблицы)
-        enrollmentRepository.deleteAll();
-        courseRepository.deleteAll();
-        professorRepository.deleteAll();
-        universityRepository.deleteAll();
-        userRepository.deleteAll();
+        final String adminEmail = "admin@kaznu.kz";
 
-        // Создание пользователей
         // Админ
-        User admin = new User();
-        admin.setName("Администратор");
-        admin.setEmail("admin@kaznu.kz");
-        admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.setRole("ADMIN");
-        admin.setEnabled(true);
+        User admin = new UserBuilder()
+                .name("Администратор")
+                .email(adminEmail)
+                .password(passwordEncoder.encode("admin123"))
+                .role("ADMIN")
+                .enabled(true)
+                .build();
         userRepository.save(admin);
 
+        // ===== Пользователи =====
         // Тестовые студенты
-        User student1 = new User();
-        student1.setName("Асылбек Касымов");
-        student1.setEmail("asylbek.kasymov@student.kaznu.kz");
-        student1.setPassword(passwordEncoder.encode("student123"));
-        student1.setRole("STUDENT");
-        student1.setEnabled(true);
-        student1.setBio("Студент 3 курса, специальность ИТ");
-        userRepository.save(student1);
+        seedUserIfNotExists(
+                "Асылбек Касымов",
+                "asylbek.kasymov@student.kaznu.kz",
+                "student123",
+                "STUDENT",
+                "Студент 3 курса, специальность ИТ"
+        );
 
-        User student2 = new User();
-        student2.setName("Динара Сагиева");
-        student2.setEmail("dinara.sagieva@student.kaznu.kz");
-        student2.setPassword(passwordEncoder.encode("student123"));
-        student2.setRole("STUDENT");
-        student2.setEnabled(true);
-        student2.setBio("Студентка 2 курса, специальность ПИ");
-        userRepository.save(student2);
+        seedUserIfNotExists(
+                "Динара Сагиева",
+                "dinara.sagieva@student.kaznu.kz",
+                "student123",
+                "STUDENT",
+                "Студентка 2 курса, специальность ПИ"
+        );
 
-        User student3 = new User();
-        student3.setName("Ерлан Нурланов");
-        student3.setEmail("erlan.nurlanov@student.kaznu.kz");
-        student3.setPassword(passwordEncoder.encode("student123"));
-        student3.setRole("STUDENT");
-        student3.setEnabled(true);
-        student3.setBio("Студент 4 курса, специальность КН");
-        userRepository.save(student3);
+        seedUserIfNotExists(
+                "Ерлан Нурланов",
+                "erlan.nurlanov@student.kaznu.kz",
+                "student123",
+                "STUDENT",
+                "Студент 4 курса, специальность КН"
+        );
 
         // Тестовые преподаватели (пользователи)
-        User teacher1 = new User();
-        teacher1.setName("Айгуль Нурбекова");
-        teacher1.setEmail("aigul.nurbekova@kaznu.kz");
-        teacher1.setPassword(passwordEncoder.encode("professor123"));
-        teacher1.setRole("PROFESSOR");
-        teacher1.setEnabled(true);
-        teacher1.setBio("Профессор кафедры ИТ");
-        userRepository.save(teacher1);
-
-        User teacher2 = new User();
-        teacher2.setName("Марат Токаев");
-        teacher2.setEmail("marat.tokayev@kaznu.kz");
-        teacher2.setPassword(passwordEncoder.encode("professor123"));
-        teacher2.setRole("PROFESSOR");
-        teacher2.setEnabled(true);
-        teacher2.setBio("Доцент кафедры ПИ");
-        userRepository.save(teacher2);
-
-        User teacher3 = new User();
-        teacher3.setName("Алия Жакупова");
-        teacher3.setEmail("aliya.zhakupova@kaznu.kz");
-        teacher3.setPassword(passwordEncoder.encode("professor123"));
-        teacher3.setRole("PROFESSOR");
-        teacher3.setEnabled(true);
-        teacher3.setBio("Старший преподаватель");
-        userRepository.save(teacher3);
-
-        // Создание университетов
-        University knu = new University(
-            "Казахский Национальный Университет",
-            "пр. Аль-Фараби, 71",
-            "Алматы",
-            "Казахстан"
+        seedUserIfNotExists(
+                "Айгуль Нурбекова",
+                "aigul.nurbekova@kaznu.kz",
+                "professor123",
+                "PROFESSOR",
+                "Профессор кафедры ИТ"
         );
-        knu.setWebsite("https://www.kaznu.kz");
-        knu.setDescription("Ведущий университет Казахстана");
-        universityRepository.save(knu);
 
-        University enu = new University(
-            "Евразийский Национальный Университет",
-            "ул. Сатпаева, 2",
-            "Астана",
-            "Казахстан"
+        seedUserIfNotExists(
+                "Марат Токаев",
+                "marat.tokayev@kaznu.kz",
+                "professor123",
+                "PROFESSOR",
+                "Доцент кафедры ПИ"
         );
-        enu.setWebsite("https://www.enu.kz");
-        enu.setDescription("Крупнейший университет столицы с современной инфраструктурой");
-        universityRepository.save(enu);
 
-        University kbtu = new University(
-            "Казахстанско-Британский Технический Университет",
-            "ул. Толе би, 59",
-            "Алматы",
-            "Казахстан"
+        seedUserIfNotExists(
+                "Алия Жакупова",
+                "aliya.zhakupova@kaznu.kz",
+                "professor123",
+                "PROFESSOR",
+                "Старший преподаватель"
         );
-        kbtu.setWebsite("https://www.kbtu.kz");
-        kbtu.setDescription("Инновационный технический университет с британскими стандартами образования");
-        universityRepository.save(kbtu);
 
-        // Создание преподавателей
-        Professor prof1 = new Professor(
-            "Айгуль Нурбекова",
-            "aigul.nurbekova@kaznu.kz",
-            "Информационные технологии",
-            knu
+        // ===== Университеты/преподаватели/курсы =====
+        // Важно: ниже оставляем текущую логику создания, но делаем её безопасной (не плодим дубликаты при ddl-auto=update).
+        // Для полноценной прод-схемы лучше перенести это в Flyway миграции.
+
+        University knu = universityRepository.findAll().stream()
+                .filter(u -> "Казахский Национальный Университет".equalsIgnoreCase(u.getName()))
+                .findFirst()
+                .orElseGet(() -> {
+                    University u = new University(
+                            "Казахский Национальный Университет",
+                            "пр. Аль-Фараби, 71",
+                            "Алматы",
+                            "Казахстан"
+                    );
+                    u.setWebsite("https://www.kaznu.kz");
+                    u.setDescription("Ведущий университет Казахстана");
+                    return universityRepository.save(u);
+                });
+
+        University enu = universityRepository.findAll().stream()
+                .filter(u -> "Евразийский Национальный Университет".equalsIgnoreCase(u.getName()))
+                .findFirst()
+                .orElseGet(() -> {
+                    University u = new University(
+                            "Евразийский Национальный Университет",
+                            "ул. Сатпаева, 2",
+                            "Астана",
+                            "Казахстан"
+                    );
+                    u.setWebsite("https://www.enu.kz");
+                    u.setDescription("Крупнейший университет столицы с современной инфраструктурой");
+                    return universityRepository.save(u);
+                });
+
+        University kbtu = universityRepository.findAll().stream()
+                .filter(u -> "Казахстанско-Британский Технический Университет".equalsIgnoreCase(u.getName()))
+                .findFirst()
+                .orElseGet(() -> {
+                    University u = new University(
+                            "Казахстанско-Британский Технический Университет",
+                            "ул. Толе би, 59",
+                            "Алматы",
+                            "Казахстан"
+                    );
+                    u.setWebsite("https://www.kbtu.kz");
+                    u.setDescription("Инновационный технический университет с британскими стандартами образования");
+                    return universityRepository.save(u);
+                });
+
+        Professor prof1 = professorRepository.findByEmail("aigul.nurbekova@kaznu.kz").orElseGet(() -> {
+            Professor p = new Professor(
+                    "Айгуль Нурбекова",
+                    "aigul.nurbekova@kaznu.kz",
+                    "Информационные технологии",
+                    knu
+            );
+            p.setBio("Профессор кафедры ИТ. Специализация: базы данных, веб-разработка");
+            return professorRepository.save(p);
+        });
+
+        Professor prof2 = professorRepository.findByEmail("marat.tokayev@kaznu.kz").orElseGet(() -> {
+            Professor p = new Professor(
+                    "Марат Токаев",
+                    "marat.tokayev@kaznu.kz",
+                    "Программная инженерия",
+                    knu
+            );
+            p.setBio("Доцент кафедры ПИ. Специализация: Java, Spring Framework");
+            return professorRepository.save(p);
+        });
+
+        Professor prof3 = professorRepository.findByEmail("aliya.zhakupova@kaznu.kz").orElseGet(() -> {
+            Professor p = new Professor(
+                    "Алия Жакупова",
+                    "aliya.zhakupova@kaznu.kz",
+                    "Компьютерные науки",
+                    knu
+            );
+            p.setBio("Старший преподаватель. Специализация: алгоритмы, структуры данных");
+            return professorRepository.save(p);
+        });
+
+        seedCourseIfNotExists(
+                "Базы данных",
+                prof1,
+                knu,
+                () -> {
+                    Course c = new Course(
+                            "Базы данных",
+                            "Изучение реляционных БД, SQL, проектирование схем. Практика: PostgreSQL, индексы, транзакции, оптимизация запросов.",
+                            "Информационные технологии",
+                            "Осень 2025",
+                            prof1,
+                            knu
+                    );
+                    c.setCredits(5);
+                    c.setMaxStudents(30);
+                    return c;
+                }
         );
-        prof1.setBio("Профессор кафедры ИТ. Специализация: базы данных, веб-разработка");
-        professorRepository.save(prof1);
 
-        Professor prof2 = new Professor(
-            "Марат Токаев",
-            "marat.tokayev@kaznu.kz",
-            "Программная инженерия",
-            knu
+        seedCourseIfNotExists(
+                "Веб-разработка на Spring",
+                prof2,
+                knu,
+                () -> {
+                    Course c = new Course(
+                            "Веб-разработка на Spring",
+                            "Разработка веб-приложений на Java Spring Boot. REST API, Spring Security, JPA/Hibernate, Thymeleaf.",
+                            "Программная инженерия",
+                            "Весна 2026",
+                            prof2,
+                            knu
+                    );
+                    c.setCredits(6);
+                    c.setMaxStudents(25);
+                    return c;
+                }
         );
-        prof2.setBio("Доцент кафедры ПИ. Специализация: Java, Spring Framework");
-        professorRepository.save(prof2);
 
-        Professor prof3 = new Professor(
-            "Алия Жакупова",
-            "aliya.zhakupova@kaznu.kz",
-            "Компьютерные науки",
-            knu
+        seedCourseIfNotExists(
+                "Алгоритмы и структуры данных",
+                prof3,
+                knu,
+                () -> {
+                    Course c = new Course(
+                            "Алгоритмы и структуры данных",
+                            "Основные алгоритмы сортировки, поиска. Структуры данных: списки, деревья, графы. Анализ сложности.",
+                            "Компьютерные науки",
+                            "Осень 2025",
+                            prof3,
+                            knu
+                    );
+                    c.setCredits(4);
+                    c.setMaxStudents(40);
+                    return c;
+                }
         );
-        prof3.setBio("Старший преподаватель. Специализация: алгоритмы, структуры данных");
-        professorRepository.save(prof3);
 
-
-        // Создание курсов
-        Course course1 = new Course(
-            "Базы данных",
-            "Изучение реляционных БД, SQL, проектирование схем. Практика: PostgreSQL, индексы, транзакции, оптимизация запросов.",
-            "Информационные технологии",
-            "Осень 2025",
-            prof1,
-            knu
+        seedCourseIfNotExists(
+                "Объектно-ориентированное программирование",
+                prof2,
+                knu,
+                () -> {
+                    Course c = new Course(
+                            "Объектно-ориентированное программирование",
+                            "ООП на Java: классы, наследование, полиморфизм, интерфейсы. Паттерны проектирования.",
+                            "Программная инженерия",
+                            "Весна 2026",
+                            prof2,
+                            knu
+                    );
+                    c.setCredits(5);
+                    c.setMaxStudents(35);
+                    return c;
+                }
         );
-        course1.setCredits(5);
-        course1.setMaxStudents(30);
-        courseRepository.save(course1);
 
-        Course course2 = new Course(
-            "Веб-разработка на Spring",
-            "Разработка веб-приложений на Java Spring Boot. REST API, Spring Security, JPA/Hibernate, Thymeleaf.",
-            "Программная инженерия",
-            "Весна 2026",
-            prof2,
-            knu
-        );
-        course2.setCredits(6);
-        course2.setMaxStudents(25);
-        courseRepository.save(course2);
-
-        Course course3 = new Course(
-            "Алгоритмы и структуры данных",
-            "Основные алгоритмы сортировки, поиска. Структуры данных: списки, деревья, графы. Анализ сложности.",
-            "Компьютерные науки",
-            "Осень 2025",
-            prof3,
-            knu
-        );
-        course3.setCredits(4);
-        course3.setMaxStudents(40);
-        courseRepository.save(course3);
-
-        Course course4 = new Course(
-            "Объектно-ориентированное программирование",
-            "ООП на Java: классы, наследование, полиморфизм, интерфейсы. Паттерны проектирования.",
-            "Программная инженерия",
-            "Весна 2026",
-            prof2,
-            knu
-        );
-        course4.setCredits(5);
-        course4.setMaxStudents(35);
-        courseRepository.save(course4);
-
-
-        System.out.println("✅ База данных инициализирована тестовыми данными:");
+        System.out.println("✅ Инициализация завершена (идемпотентно).");
         System.out.println("   👤 Пользователей: " + userRepository.count());
         System.out.println("   📚 Университетов: " + universityRepository.count());
         System.out.println("   👨‍🏫 Преподавателей: " + professorRepository.count());
         System.out.println("   📖 Курсов: " + courseRepository.count());
         System.out.println("\n🔑 Тестовые аккаунты:");
-        System.out.println("   ═══════════════════════════════════════════════════════");
         System.out.println("   АДМИН:        admin@kaznu.kz / admin123");
         System.out.println("   ПРОФЕССОР:    aigul.nurbekova@kaznu.kz / professor123");
-        System.out.println("   ПРОФЕССОР:    marat.tokayev@kaznu.kz / professor123");
-        System.out.println("   ПРОФЕССОР:    aliya.zhakupova@kaznu.kz / professor123");
         System.out.println("   СТУДЕНТ:      asylbek.kasymov@student.kaznu.kz / student123");
-        System.out.println("   СТУДЕНТ:      dinara.sagieva@student.kaznu.kz / student123");
-        System.out.println("   СТУДЕНТ:      erlan.nurlanov@student.kaznu.kz / student123");
-        System.out.println("   ═══════════════════════════════════════════════════════");
+    }
+
+    private void seedUserIfNotExists(String name,
+                                    String email,
+                                    String rawPassword,
+                                    String role,
+                                    String bio) {
+        if (userRepository.existsByEmail(email)) {
+            return;
+        }
+        User u = new UserBuilder()
+                .name(name)
+                .email(email)
+                .password(passwordEncoder.encode(rawPassword))
+                .role(role)
+                .enabled(true)
+                .bio(bio)
+                .build();
+        userRepository.save(u);
+        System.out.println("✅ [SEED] Создан пользователь: " + email + " (" + role + ")");
+    }
+
+    private void seedCourseIfNotExists(String title,
+                                      Professor professor,
+                                      University university,
+                                      java.util.function.Supplier<Course> factory) {
+        boolean exists = courseRepository.findAll().stream()
+                .anyMatch(c -> title.equalsIgnoreCase(c.getTitle())
+                        && c.getProfessor() != null && c.getProfessor().getId() != null && c.getProfessor().getId().equals(professor.getId())
+                        && c.getUniversity() != null && c.getUniversity().getId() != null && c.getUniversity().getId().equals(university.getId()));
+        if (exists) {
+            return;
+        }
+        courseRepository.save(factory.get());
+        System.out.println("✅ [SEED] Создан курс: " + title);
     }
 }
-

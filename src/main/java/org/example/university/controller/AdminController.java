@@ -26,19 +26,10 @@ public class AdminController {
     @Autowired private MessageService messageService;
 
     /**
-     * Проверка авторизации админа
-     */
-    private boolean isAdmin(HttpSession session) {
-        Object role = session.getAttribute("userRole");
-        return role != null && "ADMIN".equals(role.toString());
-    }
-
-    /**
      * Админ панель
      */
     @GetMapping("/dashboard")
     public String adminDashboard(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         model.addAttribute("userName", session.getAttribute("userName"));
         model.addAttribute("courses", courseService.getAllCourses());
         model.addAttribute("professors", professorService.getAllProfessors());
@@ -52,8 +43,7 @@ public class AdminController {
      * Страница добавления курса
      */
     @GetMapping("/courses/new")
-    public String newCoursePage(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String newCoursePage(Model model) {
         model.addAttribute("professors", professorService.getAllProfessors());
         model.addAttribute("universities", universityService.getAllUniversities());
         return "admin-course-form";
@@ -63,15 +53,13 @@ public class AdminController {
      * Создание курса
      */
     @PostMapping("/courses")
-    public String createCourse(HttpSession session,
-                               @RequestParam String title,
+    public String createCourse(@RequestParam String title,
                                @RequestParam String description,
                                @RequestParam String department,
                                @RequestParam String semester,
                                @RequestParam(required = false) Long professorId,
                                @RequestParam(required = false) Long universityId,
                                Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         try {
             Course course = new Course();
             course.setTitle(title);
@@ -95,8 +83,7 @@ public class AdminController {
      * Страница редактирования курса
      */
     @GetMapping("/courses/edit/{id}")
-    public String editCoursePage(HttpSession session, @PathVariable Long id, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String editCoursePage(@PathVariable Long id, Model model) {
         courseService.getCourseById(id).ifPresent(c -> model.addAttribute("course", c));
         model.addAttribute("professors", professorService.getAllProfessors());
         model.addAttribute("universities", universityService.getAllUniversities());
@@ -107,12 +94,11 @@ public class AdminController {
      * Обновление курса
      */
     @PostMapping("/courses/{id}")
-    public String updateCourse(HttpSession session, @PathVariable Long id,
+    public String updateCourse(@PathVariable Long id,
                                @RequestParam String title, @RequestParam String description,
                                @RequestParam String department, @RequestParam String semester,
                                @RequestParam(required = false) Long professorId,
                                @RequestParam(required = false) Long universityId) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         courseService.getCourseById(id).ifPresent(course -> {
             course.setTitle(title);
             course.setDescription(description);
@@ -129,8 +115,7 @@ public class AdminController {
      * Удаление курса
      */
     @PostMapping("/courses/delete/{id}")
-    public String deleteCourse(HttpSession session, @PathVariable Long id) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return "redirect:/admin/dashboard?success=course_deleted";
     }
@@ -141,8 +126,7 @@ public class AdminController {
      * Страница добавления преподавателя
      */
     @GetMapping("/professors/new")
-    public String newProfessorPage(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String newProfessorPage(Model model) {
         model.addAttribute("universities", universityService.getAllUniversities());
         return "admin-professor-form";
     }
@@ -151,14 +135,12 @@ public class AdminController {
      * Создание преподавателя
      */
     @PostMapping("/professors")
-    public String createProfessor(HttpSession session,
-                                  @RequestParam String name,
+    public String createProfessor(@RequestParam String name,
                                   @RequestParam String email,
                                   @RequestParam String department,
                                   @RequestParam(required = false) String bio,
                                   @RequestParam(required = false) Long universityId,
                                   Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         try {
             Professor professor = new Professor();
             professor.setName(name);
@@ -180,8 +162,7 @@ public class AdminController {
      * Страница редактирования преподавателя
      */
     @GetMapping("/professors/edit/{id}")
-    public String editProfessorPage(HttpSession session, @PathVariable Long id, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String editProfessorPage(@PathVariable Long id, Model model) {
         professorService.getProfessorById(id).ifPresent(p -> model.addAttribute("professor", p));
         model.addAttribute("universities", universityService.getAllUniversities());
         return "admin-professor-form";
@@ -191,12 +172,11 @@ public class AdminController {
      * Обновление преподавателя
      */
     @PostMapping("/professors/{id}")
-    public String updateProfessor(HttpSession session, @PathVariable Long id,
+    public String updateProfessor(@PathVariable Long id,
                                   @RequestParam String name, @RequestParam String email,
                                   @RequestParam String department,
                                   @RequestParam(required = false) String bio,
                                   @RequestParam(required = false) Long universityId) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         professorService.getProfessorById(id).ifPresent(professor -> {
             professor.setName(name);
             professor.setEmail(email);
@@ -212,8 +192,7 @@ public class AdminController {
      * Удаление преподавателя
      */
     @PostMapping("/professors/delete/{id}")
-    public String deleteProfessor(HttpSession session, @PathVariable Long id) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String deleteProfessor(@PathVariable Long id) {
         professorService.deleteProfessor(id);
         return "redirect:/admin/dashboard?success=professor_deleted";
     }
@@ -224,8 +203,7 @@ public class AdminController {
      * Страница добавления университета
      */
     @GetMapping("/universities/new")
-    public String newUniversityPage(HttpSession session) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String newUniversityPage() {
         return "admin-university-form";
     }
 
@@ -233,15 +211,13 @@ public class AdminController {
      * Создание университета
      */
     @PostMapping("/universities")
-    public String createUniversity(HttpSession session,
-                                   @RequestParam String name,
+    public String createUniversity(@RequestParam String name,
                                    @RequestParam(required = false) String address,
                                    @RequestParam(required = false) String city,
                                    @RequestParam(required = false) String country,
                                    @RequestParam(required = false) String website,
                                    @RequestParam(required = false) String description,
                                    Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         try {
             University university = new University();
             university.setName(name);
@@ -263,8 +239,7 @@ public class AdminController {
      * Страница редактирования университета
      */
     @GetMapping("/universities/edit/{id}")
-    public String editUniversityPage(HttpSession session, @PathVariable Long id, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String editUniversityPage(@PathVariable Long id, Model model) {
         universityService.getUniversityById(id).ifPresent(u -> model.addAttribute("university", u));
         return "admin-university-form";
     }
@@ -273,14 +248,13 @@ public class AdminController {
      * Обновление университета
      */
     @PostMapping("/universities/{id}")
-    public String updateUniversity(HttpSession session, @PathVariable Long id,
+    public String updateUniversity(@PathVariable Long id,
                                    @RequestParam String name,
                                    @RequestParam(required = false) String address,
                                    @RequestParam(required = false) String city,
                                    @RequestParam(required = false) String country,
                                    @RequestParam(required = false) String website,
                                    @RequestParam(required = false) String description) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
         universityService.getUniversityById(id).ifPresent(university -> {
             university.setName(name);
             university.setAddress(address != null ? address : "");
@@ -297,8 +271,7 @@ public class AdminController {
      * Удаление университета
      */
     @PostMapping("/universities/delete/{id}")
-    public String deleteUniversity(HttpSession session, @PathVariable Long id) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
+    public String deleteUniversity(@PathVariable Long id) {
         universityService.deleteUniversity(id);
         return "redirect:/admin/dashboard?success=university_deleted";
     }
@@ -308,8 +281,6 @@ public class AdminController {
      */
     @GetMapping("/users")
     public String users(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
         model.addAttribute("userName", session.getAttribute("userName"));
@@ -321,11 +292,8 @@ public class AdminController {
      * Назначение роли пользователю
      */
     @PostMapping("/users/{id}/assign-role")
-    public String assignRole(HttpSession session,
-                            @PathVariable Long id,
+    public String assignRole(@PathVariable Long id,
                             @RequestParam String role) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         User user = userService.getUserById(id).orElseThrow();
         user.setRole(role);
         userService.saveUser(user);
@@ -351,8 +319,6 @@ public class AdminController {
      */
     @GetMapping("/users/{id}/edit")
     public String editUserForm(HttpSession session, @PathVariable Long id, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         User user = userService.getUserById(id).orElseThrow();
         model.addAttribute("user", user);
         model.addAttribute("userName", session.getAttribute("userName"));
@@ -364,15 +330,12 @@ public class AdminController {
      * Обновление пользователя
      */
     @PostMapping("/users/{id}/update")
-    public String updateUser(HttpSession session,
-                            @PathVariable Long id,
-                            @RequestParam String name,
-                            @RequestParam String email,
-                            @RequestParam String role,
-                            @RequestParam(required = false) String phoneNumber,
-                            @RequestParam(required = false) String bio) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
+    public String updateUser(@PathVariable Long id,
+                             @RequestParam String name,
+                             @RequestParam String email,
+                             @RequestParam String role,
+                             @RequestParam(required = false) String phoneNumber,
+                             @RequestParam(required = false) String bio) {
         User user = userService.getUserById(id).orElseThrow();
         user.setName(name);
         user.setEmail(email);
@@ -389,9 +352,7 @@ public class AdminController {
      * Активация/деактивация пользователя
      */
     @PostMapping("/users/{id}/toggle-status")
-    public String toggleUserStatus(HttpSession session, @PathVariable Long id) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
+    public String toggleUserStatus(@PathVariable Long id) {
         User user = userService.getUserById(id).orElseThrow();
         user.setEnabled(!user.getEnabled());
         userService.saveUser(user);
@@ -404,8 +365,6 @@ public class AdminController {
      */
     @GetMapping("/professors/monitor")
     public String monitorProfessors(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         List<Professor> professors = professorService.getAllProfessors();
 
         // Для каждого профессора собираем статистику
@@ -432,8 +391,6 @@ public class AdminController {
      */
     @GetMapping("/professors/{id}/stats")
     public String professorStats(HttpSession session, @PathVariable Long id, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         Professor professor = professorService.getProfessorById(id).orElseThrow();
         List<Course> courses = courseService.getCoursesByProfessor(professor);
 
@@ -460,8 +417,6 @@ public class AdminController {
      */
     @GetMapping("/statistics")
     public String systemStatistics(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         long totalUsers = userService.getAllUsers().size();
         long totalCourses = courseService.getAllCourses().size();
         long totalProfessors = professorService.getAllProfessors().size();
@@ -493,8 +448,6 @@ public class AdminController {
      */
     @PostMapping("/users/{id}/delete")
     public String deleteUser(HttpSession session, @PathVariable Long id) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
         // Проверка что не удаляем самого себя
         Long currentUserId = (Long) session.getAttribute("userId");
         if (currentUserId.equals(id)) {
@@ -512,9 +465,7 @@ public class AdminController {
      * Пароль по умолчанию: professor123
      */
     @PostMapping("/professors/register-all")
-    public String registerAllProfessors(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/auth/login";
-
+    public String registerAllProfessors(Model model) {
         try {
             int createdCount = professorService.registerAllExistingProfessors();
 

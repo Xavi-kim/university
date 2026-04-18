@@ -1,11 +1,13 @@
 package org.example.university.controller;
 
+import org.example.university.exception.NotFoundException;
 import org.example.university.model.*;
 import org.example.university.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -38,36 +40,40 @@ public class StudentController {
     @Autowired
     private GradeService gradeService;
 
-    /**
-     * Проверка авторизации студента
-     */
-    private Long getStudentId(HttpSession session) {
-        Object userId = session.getAttribute("userId");
-        Object role = session.getAttribute("userRole");
+    @Autowired
+    private CourseReviewService courseReviewService;
 
-        if (userId != null && role != null && "STUDENT".equals(role.toString())) {
-            return Long.parseLong(userId.toString());
-        }
-        return null;
+    /**
+     * Получить studentId через Spring Security Authentication.
+     */
+    private Long getStudentId(Authentication authentication) {
+        if (authentication == null) return null;
+        String email = authentication.getName();
+        return userService.getUserByEmail(email)
+                .map(User::getId)
+                .orElse(null);
     }
 
     /**
      * Панель студента
      */
     @GetMapping("/dashboard")
-    public String studentDashboard(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String studentDashboard(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        model.addAttribute("userName", session.getAttribute("userName"));
+        // имя для приветствия: сначала пробуем сессию (если выставляли), иначе берём из БД
+        Object userName = session.getAttribute("userName");
+        if (userName == null) {
+            userName = userService.getUserById(studentId).map(User::getName).orElse("Student");
+        }
+        model.addAttribute("userName", userName);
 
-        // Курсы студента
         List<Enrollment> enrollments = enrollmentService.getEnrollmentsByStudent(studentId);
         model.addAttribute("enrollments", enrollments);
 
-        // Доступные курсы для записи
         List<Course> availableCourses = courseService.getAllActiveCourses();
         model.addAttribute("availableCourses", availableCourses);
 
@@ -78,19 +84,19 @@ public class StudentController {
      * Запись на курс
      */
     @PostMapping("/enroll/{courseId}")
-    public String enrollCourse(HttpSession session,
+    public String enrollCourse(Authentication authentication,
                               @PathVariable Long courseId,
                               Model model) {
-        Long studentId = getStudentId(session);
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
         try {
             User student = userService.getUserById(studentId)
-                    .orElseThrow(() -> new RuntimeException("Студент не найден"));
+                    .orElseThrow(() -> new NotFoundException("Студент не найден"));
             Course course = courseService.getCourseById(courseId)
-                    .orElseThrow(() -> new RuntimeException("Курс не найден"));
+                    .orElseThrow(() -> new NotFoundException("Курс не найден"));
 
             enrollmentService.enrollStudent(student, course);
 
@@ -104,22 +110,20 @@ public class StudentController {
      * Отписаться от курса
      */
     @PostMapping("/unenroll/{enrollmentId}")
-    public String unenrollCourse(HttpSession session, @PathVariable Long enrollmentId) {
-        Long studentId = getStudentId(session);
+    public String unenrollCourse(Authentication authentication, @PathVariable Long enrollmentId) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        // Проверка, что запись принадлежит этому студенту
         Enrollment enrollment = enrollmentService.getEnrollmentById(enrollmentId)
-                .orElseThrow(() -> new RuntimeException("Запись не найдена"));
+                .orElseThrow(() -> new NotFoundException("Запись не найдена"));
 
         if (!enrollment.getStudent().getId().equals(studentId)) {
             return "redirect:/student/dashboard?error=unauthorized";
         }
 
         enrollmentService.deleteEnrollment(enrollmentId);
-
         return "redirect:/student/dashboard?success=unenrolled";
     }
 
@@ -127,13 +131,17 @@ public class StudentController {
      * Мои курсы
      */
     @GetMapping("/my-courses")
-    public String myCourses(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String myCourses(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        model.addAttribute("userName", session.getAttribute("userName"));
+        Object userName = session.getAttribute("userName");
+        if (userName == null) {
+            userName = userService.getUserById(studentId).map(User::getName).orElse("Student");
+        }
+        model.addAttribute("userName", userName);
 
         List<Enrollment> enrollments = enrollmentService.getEnrollmentsByStudent(studentId);
         model.addAttribute("enrollments", enrollments);
@@ -145,8 +153,8 @@ public class StudentController {
      * Просмотр информации о профессорах
      */
     @GetMapping("/professors")
-    public String professors(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String professors(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
@@ -162,14 +170,14 @@ public class StudentController {
      * Детальная информация о профессоре
      */
     @GetMapping("/professors/{id}")
-    public String professorDetails(@PathVariable Long id, HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String professorDetails(@PathVariable Long id, Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
         Professor professor = professorService.getProfessorById(id)
-                .orElseThrow(() -> new RuntimeException("Профессор не найден"));
+                .orElseThrow(() -> new NotFoundException("Профессор не найден"));
 
         List<Course> professorCourses = courseService.getCoursesByProfessor(professor);
 
@@ -184,18 +192,13 @@ public class StudentController {
      * Домашние задания студента
      */
     @GetMapping("/homework")
-    public String homework(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String homework(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        User student = userService.getUserById(studentId).orElseThrow();
-
-        // Получаем курсы студента
         List<Enrollment> enrollments = enrollmentService.getEnrollmentsByStudent(studentId);
-
-        // Получаем все сданные работы
         List<HomeworkSubmission> submissions = homeworkService.getStudentSubmissions(studentId);
 
         model.addAttribute("enrollments", enrollments);
@@ -209,16 +212,14 @@ public class StudentController {
      * ДЗ для конкретного курса
      */
     @GetMapping("/courses/{courseId}/homework")
-    public String courseHomework(@PathVariable Long courseId, HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String courseHomework(@PathVariable Long courseId, Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        Course course = courseService.getCourseById(courseId).orElseThrow();
+        Course course = courseService.getCourseById(courseId).orElseThrow(() -> new NotFoundException("Курс не найден"));
         List<Homework> homeworks = homeworkService.getHomeworksByCourse(courseId);
-
-        // Получаем сдачи студента для этого курса
         List<HomeworkSubmission> submissions = homeworkService.getCourseSubmissionsForStudent(courseId, studentId);
 
         model.addAttribute("course", course);
@@ -234,16 +235,16 @@ public class StudentController {
      */
     @PostMapping("/homework/{id}/submit")
     public String submitHomework(@PathVariable Long id,
-                                @RequestParam String content,
-                                @RequestParam(required = false) String fileUrl,
-                                HttpSession session) {
-        Long studentId = getStudentId(session);
+                                 @RequestParam String content,
+                                 @RequestParam(required = false) String fileUrl,
+                                 Authentication authentication) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        User student = userService.getUserById(studentId).orElseThrow();
-        Homework homework = homeworkService.getHomeworkById(id).orElseThrow();
+        User student = userService.getUserById(studentId).orElseThrow(() -> new NotFoundException("Студент не найден"));
+        Homework homework = homeworkService.getHomeworkById(id).orElseThrow(() -> new NotFoundException("ДЗ не найдено"));
 
         HomeworkSubmission submission = new HomeworkSubmission(homework, student, content);
         if (fileUrl != null && !fileUrl.trim().isEmpty()) {
@@ -259,13 +260,12 @@ public class StudentController {
      * Мои оценки
      */
     @GetMapping("/grades")
-    public String grades(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String grades(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        User student = userService.getUserById(studentId).orElseThrow();
         List<Grade> grades = gradeService.getGradesByStudent(studentId);
         Double avgGPA = gradeService.calculateStudentGPA(studentId);
 
@@ -280,8 +280,8 @@ public class StudentController {
      * Сообщения
      */
     @GetMapping("/messages")
-    public String messages(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String messages(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) return "redirect:/auth/login";
 
         List<org.example.university.dto.ConversationDto> conversations = messageService.getConversations(studentId);
@@ -300,13 +300,12 @@ public class StudentController {
     public String sendNewMessage(@RequestParam(required = false) Long recipientId,
                                  @RequestParam(required = false) String recipientEmail,
                                  @RequestParam String content,
-                                 HttpSession session) {
-        Long studentId = getStudentId(session);
+                                 Authentication authentication) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) return "redirect:/auth/login";
 
-        User student = userService.getUserById(studentId).orElseThrow();
+        User student = userService.getUserById(studentId).orElseThrow(() -> new NotFoundException("Студент не найден"));
 
-        // Найти получателя по ID или по email
         User recipient = null;
         if (recipientId != null) {
             recipient = userService.getUserById(recipientId).orElse(null);
@@ -327,11 +326,11 @@ public class StudentController {
      * Диалог с пользователем
      */
     @GetMapping("/messages/{userId}")
-    public String conversation(@PathVariable Long userId, HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String conversation(@PathVariable Long userId, Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) return "redirect:/auth/login";
 
-        User other = userService.getUserById(userId).orElseThrow();
+        User other = userService.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         List<Message> conversation = messageService.getConversation(studentId, userId);
         messageService.markConversationAsRead(studentId, userId);
 
@@ -350,12 +349,12 @@ public class StudentController {
     @PostMapping("/messages/{userId}/send")
     public String sendMessageInDialog(@PathVariable Long userId,
                                       @RequestParam String content,
-                                      HttpSession session) {
-        Long studentId = getStudentId(session);
+                                      Authentication authentication) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) return "redirect:/auth/login";
 
-        User student = userService.getUserById(studentId).orElseThrow();
-        User other = userService.getUserById(userId).orElseThrow();
+        User student = userService.getUserById(studentId).orElseThrow(() -> new NotFoundException("Студент не найден"));
+        User other = userService.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Message message = new Message(student, other, content);
         messageService.sendMessage(message);
         return "redirect:/student/messages/" + userId;
@@ -365,26 +364,22 @@ public class StudentController {
      * Подробная информация о курсе
      */
     @GetMapping("/courses/{courseId}")
-    public String courseDetails(@PathVariable Long courseId, HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String courseDetails(@PathVariable Long courseId, Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        // Получить курс
         Course course = courseService.getCourseById(courseId)
-                .orElseThrow(() -> new RuntimeException("Курс не найден"));
+                .orElseThrow(() -> new NotFoundException("Курс не найден"));
 
-        // Проверить, записан ли студент на этот курс
         Enrollment enrollment = enrollmentService.getEnrollmentsByStudent(studentId).stream()
                 .filter(e -> e.getCourse().getId().equals(courseId))
                 .findFirst()
                 .orElse(null);
 
-        // Получить домашние задания курса
         List<Homework> homeworks = homeworkService.getHomeworksByCourse(courseId);
 
-        // Получить оценку студента (если есть)
         Grade grade = null;
         if (enrollment != null) {
             List<Grade> grades = gradeService.getGradesByEnrollment(enrollment);
@@ -400,28 +395,82 @@ public class StudentController {
         model.addAttribute("grade", grade);
         model.addAttribute("isEnrolled", enrollment != null);
 
-        // ID пользователя-профессора для ссылки "Написать"
-        if (course.getProfessor() != null) {
-            userService.getUserByEmail(course.getProfessor().getEmail())
-                .ifPresent(u -> model.addAttribute("profUserId", u.getId()));
+        // 1) Правильный поиск userId профессора
+        Long profUserId = null;
+        if (course.getProfessor() != null && course.getProfessor().getEmail() != null) {
+            profUserId = userService.getUserByEmail(course.getProfessor().getEmail())
+                    .map(User::getId)
+                    .orElse(null);
         }
+        model.addAttribute("profUserId", profUserId);
+
+        // 4) Отзывы
+        Double averageRating = courseReviewService.getAverageRating(courseId);
+        boolean hasReviewed = courseReviewService.hasStudentReviewed(courseId, studentId);
+        List<CourseReview> reviews = courseReviewService.getReviewsForCourse(courseId);
+        List<CourseReview> latest3 = reviews.stream().limit(3).toList();
+
+        model.addAttribute("averageRating", averageRating);
+        model.addAttribute("latestReviews", latest3);
+        model.addAttribute("hasReviewed", hasReviewed);
 
         return "student-course-detail";
     }
 
+    /**
+     * Форма отзыва на курс (только если студент записан и ещё не оставлял отзыв)
+     */
+    @GetMapping("/courses/{courseId}/review")
+    public String reviewForm(@PathVariable Long courseId,
+                             Authentication authentication,
+                             HttpSession session,
+                             Model model) {
+        Long studentId = getStudentId(authentication);
+        if (studentId == null) return "redirect:/auth/login";
+
+        Course course = courseService.getCourseById(courseId)
+                .orElseThrow(() -> new NotFoundException("Курс не найден"));
+
+        boolean isEnrolled = enrollmentService.getEnrollmentsByStudent(studentId).stream()
+                .anyMatch(e -> e.getCourse().getId().equals(courseId));
+        if (!isEnrolled) {
+            return "redirect:/student/courses/" + courseId + "?error=not_enrolled";
+        }
+
+        if (courseReviewService.hasStudentReviewed(courseId, studentId)) {
+            return "redirect:/student/courses/" + courseId + "?reviewed=true";
+        }
+
+        model.addAttribute("userName", session.getAttribute("userName"));
+        model.addAttribute("course", course);
+        return "student-course-review";
+    }
+
+    /**
+     * Сохранение отзыва
+     */
+    @PostMapping("/courses/{courseId}/review")
+    public String submitReview(@PathVariable Long courseId,
+                               @RequestParam int rating,
+                               @RequestParam(required = false) String comment,
+                               Authentication authentication) {
+        Long studentId = getStudentId(authentication);
+        if (studentId == null) return "redirect:/auth/login";
+
+        courseReviewService.addReview(courseId, studentId, rating, comment);
+        return "redirect:/student/courses/" + courseId + "?reviewed=true";
+    }
 
     /**
      * Чат - список профессоров для общения
      */
     @GetMapping("/chat")
-    public String chat(HttpSession session, Model model) {
-        Long studentId = getStudentId(session);
+    public String chat(Authentication authentication, HttpSession session, Model model) {
+        Long studentId = getStudentId(authentication);
         if (studentId == null) {
             return "redirect:/auth/login";
         }
 
-        // Получить всех профессоров, с которыми студент может общаться
-        // (профессоров курсов, на которые записан студент)
         List<Enrollment> enrollments = enrollmentService.getEnrollmentsByStudent(studentId);
         List<Professor> professors = enrollments.stream()
                 .map(e -> e.getCourse().getProfessor())

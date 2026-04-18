@@ -1,5 +1,8 @@
 package org.example.university.controller;
 
+import org.example.university.factory.AdvancedCourseFactory;
+import org.example.university.factory.CourseFactory;
+import org.example.university.factory.StandardCourseFactory;
 import org.example.university.model.*;
 import org.example.university.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,8 +102,39 @@ public class ProfessorWebController {
         User user = userService.getUserByEmail(auth.getName()).orElseThrow();
         Professor professor = professorService.findByEmail(user.getEmail());
 
-        course.setProfessor(professor);
-        courseService.saveCourse(course);
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
+
+        // Factory: продвинутые курсы (level="Advanced") создаём через AdvancedCourseFactory,
+        // остальные — через StandardCourseFactory.
+        CourseFactory factory = (course.getLevel() != null && "ADVANCED".equalsIgnoreCase(course.getLevel()))
+                ? new AdvancedCourseFactory()
+                : new StandardCourseFactory();
+
+        Course toSave = factory.createCourse(
+                course.getTitle(),
+                course.getDescription(),
+                course.getDepartment(),
+                course.getSemester(),
+                professor,
+                course.getUniversity()
+        );
+
+        // переносим дополнительные поля формы (кроме professor, credits/level могут быть переопределены Advanced фабрикой)
+        toSave.setActive(course.isActive());
+        if (!(factory instanceof AdvancedCourseFactory)) {
+            toSave.setCredits(course.getCredits());
+            toSave.setLevel(course.getLevel());
+        }
+        toSave.setMaxStudents(course.getMaxStudents());
+        toSave.setStartDate(course.getStartDate());
+        toSave.setEndDate(course.getEndDate());
+        toSave.setCategory(course.getCategory());
+        toSave.setTags(course.getTags());
+        toSave.setImageUrl(course.getImageUrl());
+
+        courseService.saveCourse(toSave);
 
         return "redirect:/professor/courses?success=created";
     }
@@ -112,9 +146,12 @@ public class ProfessorWebController {
     public String editCourseForm(@PathVariable Long id, Authentication auth, Model model) {
         Course course = courseService.getCourseById(id).orElseThrow();
 
-        // Проверка что курс принадлежит этому профессору
         User user = userService.getUserByEmail(auth.getName()).orElseThrow();
         Professor professor = professorService.findByEmail(user.getEmail());
+
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
 
         if (!course.getProfessor().getId().equals(professor.getId())) {
             return "redirect:/professor/courses?error=access_denied";
@@ -132,9 +169,12 @@ public class ProfessorWebController {
     public String updateCourse(@PathVariable Long id, @ModelAttribute Course updatedCourse, Authentication auth) {
         Course course = courseService.getCourseById(id).orElseThrow();
 
-        // Проверка прав
         User user = userService.getUserByEmail(auth.getName()).orElseThrow();
         Professor professor = professorService.findByEmail(user.getEmail());
+
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
 
         if (!course.getProfessor().getId().equals(professor.getId())) {
             return "redirect:/professor/courses?error=access_denied";
@@ -168,6 +208,10 @@ public class ProfessorWebController {
         User user = userService.getUserByEmail(auth.getName()).orElseThrow();
         Professor professor = professorService.findByEmail(user.getEmail());
 
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
+
         if (!course.getProfessor().getId().equals(professor.getId())) {
             return "redirect:/professor/courses?error=access_denied";
         }
@@ -189,6 +233,10 @@ public class ProfessorWebController {
         // Проверка прав
         User user = userService.getUserByEmail(auth.getName()).orElseThrow();
         Professor professor = professorService.findByEmail(user.getEmail());
+
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
 
         if (!course.getProfessor().getId().equals(professor.getId())) {
             return "redirect:/professor/courses?error=access_denied";
@@ -238,6 +286,10 @@ public class ProfessorWebController {
         User user = userService.getUserByEmail(auth.getName()).orElseThrow();
         Professor professor = professorService.findByEmail(user.getEmail());
 
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
+
         if (!homework.getCourse().getProfessor().getId().equals(professor.getId())) {
             return "redirect:/professor/dashboard?error=access_denied";
         }
@@ -269,7 +321,22 @@ public class ProfessorWebController {
                               @PathVariable Long studentId,
                               @RequestParam String letterGrade,
                               @RequestParam Double numericGrade,
-                              @RequestParam(required = false) String comments) {
+                              @RequestParam(required = false) String comments,
+                              Authentication auth) {
+        User user = userService.getUserByEmail(auth.getName()).orElseThrow();
+        Professor professor = professorService.findByEmail(user.getEmail());
+        if (professor == null) {
+            return "redirect:/professor/dashboard?error=no_professor_profile";
+        }
+
+        // Если у текущего пользователя нет профиля профессора — не падаем, а ведём в dashboard с ошибкой.
+        // Это защищает редирект /professor/courses/{id}/students от NPE.
+        // (Профиль профессора создаётся отдельно и может отсутствовать.)
+        //
+        // NB: здесь auth не передавался ранее, поэтому используем текущий SecurityContext через параметр не можем.
+        // В этой реализации полагаемся на то, что сам endpoint доступен только профессорам,
+        // но всё равно проверяем наличие professor-записи по email.
+
         // Найти enrollment
         Enrollment enrollment = enrollmentService.getEnrollmentsByCourse(courseId).stream()
                 .filter(e -> e.getStudent().getId().equals(studentId))
